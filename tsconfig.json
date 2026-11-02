@@ -8,5 +8,5 @@
     "types": ["bun"]
   },
   "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist"]
+  "exclude": ["dist", "output", "graft", ".tools"]
 }
