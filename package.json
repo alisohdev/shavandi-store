@@ -13,9 +13,9 @@
     "preview": "bun --bun astro preview",
     "check": "bun --bun astro check",
     "lint": "bun lint --no-script --max-warnings=0 \"src/**/*.ts\" \"src/**/*.tsx\" astro.config.mjs",
-    "format": "bun fmt --no-script \"src/**/*.ts\" \"src/**/*.tsx\" \"src/**/*.css\" astro.config.mjs package.json tsconfig.json components.json \".vscode/*.json\" .prettier-astro.json README.md \"docs/*.md\" && bun run format:astro",
+    "format": "bun fmt --no-script \"src/**/*.ts\" \"src/**/*.tsx\" \"src/**/*.css\" astro.config.mjs package.json tsconfig.json components.json \".vscode/*.json\" .prettier-astro.json README.md \"docs/*.md\" \"docs/*.json\" && bun run format:astro",
     "format:astro": "bun --bun prettier --config .prettier-astro.json --write \"src/**/*.astro\"",
-    "format:check": "bun fmt --no-script --check \"src/**/*.ts\" \"src/**/*.tsx\" \"src/**/*.css\" astro.config.mjs package.json tsconfig.json components.json \".vscode/*.json\" .prettier-astro.json README.md \"docs/*.md\" && bun --bun prettier --config .prettier-astro.json --check \"src/**/*.astro\"",
+    "format:check": "bun fmt --no-script --check \"src/**/*.ts\" \"src/**/*.tsx\" \"src/**/*.css\" astro.config.mjs package.json tsconfig.json components.json \".vscode/*.json\" .prettier-astro.json README.md \"docs/*.md\" \"docs/*.json\" && bun --bun prettier --config .prettier-astro.json --check \"src/**/*.astro\"",
     "test": "bun test",
     "validate": "bun run check && bun run lint && bun run format:check && bun test && bun run build"
   },

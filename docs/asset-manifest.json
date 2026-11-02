@@ -1,0 +1,497 @@
+{
+  "checkedAt": "2026-11-02",
+  "sourcePolicy": "Fresh product-page HTML from the named Shavandi store is the source for names, prices, and listed attributes. Reuse of all eight Shavandi photos was confirmed by the user on 2026-11-02. No stock, material, care, authenticity, season, or fan-version claim is inferred from an image.",
+  "assets": [
+    {
+      "kind": "sourced",
+      "productName": "پتو کوسه ای 140 تا 175",
+      "sourcePage": "https://shavandistore.ir/product/76744/",
+      "sourceImageUrl": "https://fva2.ir/content/shop/products/77/63811759083899.jpg",
+      "priceToman": 3480000,
+      "verifiedAttributes": {
+        "sourceProductId": "76744",
+        "descriptionAsListed": "برای قد 140 تا 175 سانت",
+        "optionsAsListed": ["طوسی", "ابی یخی", "صورتی", "سرخابی"]
+      },
+      "sourceDimensions": {
+        "width": 552,
+        "height": 600
+      },
+      "derivatives": [
+        {
+          "path": "/images/shavandi/shark-wearable-blanket-140-175-320.webp",
+          "width": 320,
+          "height": 348
+        },
+        {
+          "path": "/images/shavandi/shark-wearable-blanket-140-175-480.webp",
+          "width": 480,
+          "height": 522
+        },
+        {
+          "path": "/images/shavandi/shark-wearable-blanket-140-175.webp",
+          "width": 552,
+          "height": 600
+        }
+      ],
+      "observedAt": "2026-11-02T17:38:47.7397615Z",
+      "rights": "confirmed-by-user-2026-11-02",
+      "demoFacts": [
+        "Availability and checkout are simulated.",
+        "Blanket size selection is demo unless the listed height range is given.",
+        "Material and care are unspecified by the source.",
+        "Fan version and official licensing are unverified."
+      ]
+    },
+    {
+      "kind": "sourced",
+      "productName": "پتو تنپوش مدل پاندا",
+      "sourcePage": "https://shavandistore.ir/product/109677/",
+      "sourceImageUrl": "https://fva2.ir/content/shop/products/110/63811761508675.jpg",
+      "priceToman": 5380000,
+      "verifiedAttributes": {
+        "sourceProductId": "109677",
+        "descriptionAsListed": "",
+        "optionsAsListed": []
+      },
+      "sourceDimensions": {
+        "width": 518,
+        "height": 600
+      },
+      "derivatives": [
+        {
+          "path": "/images/shavandi/panda-wearable-blanket-320.webp",
+          "width": 320,
+          "height": 371
+        },
+        {
+          "path": "/images/shavandi/panda-wearable-blanket-480.webp",
+          "width": 480,
+          "height": 556
+        },
+        {
+          "path": "/images/shavandi/panda-wearable-blanket.webp",
+          "width": 518,
+          "height": 600
+        }
+      ],
+      "observedAt": "2026-11-02T17:38:47.8893768Z",
+      "rights": "confirmed-by-user-2026-11-02",
+      "demoFacts": [
+        "Availability and checkout are simulated.",
+        "Blanket size selection is demo unless the listed height range is given.",
+        "Material and care are unspecified by the source.",
+        "Fan version and official licensing are unverified."
+      ]
+    },
+    {
+      "kind": "sourced",
+      "productName": "پتو تنپوش خرگوش گوش بلند",
+      "sourcePage": "https://shavandistore.ir/product/114173/",
+      "sourceImageUrl": "https://fva2.ir/content/shop/products/115/63811765193562.jpg",
+      "priceToman": 5380000,
+      "verifiedAttributes": {
+        "sourceProductId": "114173",
+        "descriptionAsListed": "",
+        "optionsAsListed": ["رنگ سرخابی", "رنگ طوسی", "رنگ بنفش", "رنگ قرمز"]
+      },
+      "sourceDimensions": {
+        "width": 554,
+        "height": 600
+      },
+      "derivatives": [
+        {
+          "path": "/images/shavandi/long-ear-rabbit-wearable-blanket-320.webp",
+          "width": 320,
+          "height": 347
+        },
+        {
+          "path": "/images/shavandi/long-ear-rabbit-wearable-blanket-480.webp",
+          "width": 480,
+          "height": 520
+        },
+        {
+          "path": "/images/shavandi/long-ear-rabbit-wearable-blanket.webp",
+          "width": 554,
+          "height": 600
+        }
+      ],
+      "observedAt": "2026-11-02T17:38:48.0398217Z",
+      "rights": "confirmed-by-user-2026-11-02",
+      "demoFacts": [
+        "Availability and checkout are simulated.",
+        "Blanket size selection is demo unless the listed height range is given.",
+        "Material and care are unspecified by the source.",
+        "Fan version and official licensing are unverified."
+      ]
+    },
+    {
+      "kind": "sourced",
+      "productName": "تنپوش طرح دایناسور",
+      "sourcePage": "https://shavandistore.ir/product/106387/",
+      "sourceImageUrl": "https://fva2.ir/content/shop/products/107/63811759077929.jpg",
+      "priceToman": 5380000,
+      "verifiedAttributes": {
+        "sourceProductId": "106387",
+        "descriptionAsListed": "",
+        "optionsAsListed": []
+      },
+      "sourceDimensions": {
+        "width": 434,
+        "height": 600
+      },
+      "derivatives": [
+        {
+          "path": "/images/shavandi/dinosaur-wearable-blanket-320.webp",
+          "width": 320,
+          "height": 442
+        },
+        {
+          "path": "/images/shavandi/dinosaur-wearable-blanket.webp",
+          "width": 434,
+          "height": 600
+        }
+      ],
+      "observedAt": "2026-11-02T17:38:48.1979460Z",
+      "rights": "confirmed-by-user-2026-11-02",
+      "demoFacts": [
+        "Availability and checkout are simulated.",
+        "Blanket size selection is demo unless the listed height range is given.",
+        "Material and care are unspecified by the source.",
+        "Fan version and official licensing are unverified."
+      ]
+    },
+    {
+      "kind": "sourced",
+      "productName": "رئال مادرید سفید",
+      "sourcePage": "https://shavandisport.ir/product/114687/%D8%B1%D8%A6%D8%A7%D9%84-%D9%85%D8%A7%D8%AF%D8%B1%DB%8C%D8%AF-%D8%B3%D9%81%DB%8C%D8%AF/",
+      "sourceImageUrl": "https://fva2.ir/content/shop/products/115/51711783101481.jpg",
+      "priceToman": 1780000,
+      "verifiedAttributes": {
+        "sourceProductId": "114687",
+        "sizesAsListed": ["S", "L", "XL", "2xl", "M"],
+        "descriptionAsListed": "",
+        "imageWidth": 600,
+        "imageHeight": 600,
+        "imageAspectRatio": 1,
+        "team": "Real Madrid",
+        "colorFromTitle": "white"
+      },
+      "sourceDimensions": {
+        "width": 600,
+        "height": 600
+      },
+      "derivatives": [
+        {
+          "path": "/images/shavandi/real-madrid-white-320.webp",
+          "width": 320,
+          "height": 320
+        },
+        {
+          "path": "/images/shavandi/real-madrid-white-480.webp",
+          "width": 480,
+          "height": 480
+        },
+        {
+          "path": "/images/shavandi/real-madrid-white.webp",
+          "width": 600,
+          "height": 600
+        }
+      ],
+      "observedAt": "2026-11-02T17:36:26.5460735Z",
+      "rights": "confirmed-by-user-2026-11-02",
+      "demoFacts": [
+        "Availability and checkout are simulated.",
+        "Blanket size selection is demo unless the listed height range is given.",
+        "Material and care are unspecified by the source.",
+        "Fan version and official licensing are unverified."
+      ]
+    },
+    {
+      "kind": "sourced",
+      "productName": "کیت جام جهانی پلیری سوم فرانسه",
+      "sourcePage": "https://shavandisport.ir/product/129615/%DA%A9%DB%8C%D8%AA-%D8%AC%D8%A7%D9%85-%D8%AC%D9%87%D8%A7%D9%86%DB%8C-%D9%BE%D9%84%DB%8C%D8%B1%DB%8C-%D8%B3%D9%88%D9%85-%D9%81%D8%B1%D8%A7%D9%86%D8%B3%D9%87/",
+      "sourceImageUrl": "https://fva2.ir/content/shop/products/130/51711782987585.jpg",
+      "priceToman": 2780000,
+      "verifiedAttributes": {
+        "sourceProductId": "129615",
+        "sizesAsListed": ["اسمال", "مدیوم", "لارج", "ایکس لارج", "دوایکس لارج"],
+        "descriptionAsListed": "",
+        "imageWidth": 600,
+        "imageHeight": 540,
+        "imageAspectRatio": 1.1111111111111112,
+        "team": "France",
+        "editionFromTitle": "third World Cup kit",
+        "versionFromTitle": "player",
+        "originalPriceToman": 2980000
+      },
+      "sourceDimensions": {
+        "width": 600,
+        "height": 540
+      },
+      "derivatives": [
+        {
+          "path": "/images/shavandi/france-third-player-world-cup-320.webp",
+          "width": 320,
+          "height": 288
+        },
+        {
+          "path": "/images/shavandi/france-third-player-world-cup-480.webp",
+          "width": 480,
+          "height": 432
+        },
+        {
+          "path": "/images/shavandi/france-third-player-world-cup.webp",
+          "width": 600,
+          "height": 540
+        }
+      ],
+      "observedAt": "2026-11-02T17:36:26.6130282Z",
+      "rights": "confirmed-by-user-2026-11-02",
+      "demoFacts": [
+        "Availability and checkout are simulated.",
+        "Blanket size selection is demo unless the listed height range is given.",
+        "Material and care are unspecified by the source.",
+        "Fan version and official licensing are unverified."
+      ]
+    },
+    {
+      "kind": "sourced",
+      "productName": "ست تیشرت شلوارک پرتغال مشکی",
+      "sourcePage": "https://shavandisport.ir/product/130179/%D8%B3%D8%AA-%D8%AA%DB%8C%D8%B4%D8%B1%D8%AA-%D8%B4%D9%84%D9%88%D8%A7%D8%B1%DA%A9-%D9%BE%D8%B1%D8%AA%D8%BA%D8%A7%D9%84-%D9%85%D8%B4%DA%A9%DB%8C/",
+      "sourceImageUrl": "https://fva2.ir/content/shop/products/131/51711783534975.jpg",
+      "priceToman": 1680000,
+      "verifiedAttributes": {
+        "sourceProductId": "130179",
+        "sizesAsListed": ["اسمال", "مدیوم", "لارج", "ایکس لارج", "دوایکس لارج"],
+        "descriptionAsListed": "",
+        "imageWidth": 480,
+        "imageHeight": 600,
+        "imageAspectRatio": 0.8,
+        "team": "Portugal",
+        "colorFromTitle": "black",
+        "productTypeFromTitle": "shirt and shorts set",
+        "originalPriceToman": 1990000
+      },
+      "sourceDimensions": {
+        "width": 480,
+        "height": 600
+      },
+      "derivatives": [
+        {
+          "path": "/images/shavandi/portugal-black-shirt-shorts-set-320.webp",
+          "width": 320,
+          "height": 400
+        },
+        {
+          "path": "/images/shavandi/portugal-black-shirt-shorts-set.webp",
+          "width": 480,
+          "height": 600
+        }
+      ],
+      "observedAt": "2026-11-02T17:36:26.6679264Z",
+      "rights": "confirmed-by-user-2026-11-02",
+      "demoFacts": [
+        "Availability and checkout are simulated.",
+        "Blanket size selection is demo unless the listed height range is given.",
+        "Material and care are unspecified by the source.",
+        "Fan version and official licensing are unverified."
+      ]
+    },
+    {
+      "kind": "sourced",
+      "productName": "تیشرت ارژانتین",
+      "sourcePage": "https://shavandisport.ir/product/128626/%D8%AA%DB%8C%D8%B4%D8%B1%D8%AA-%D8%A7%D8%B1%DA%98%D8%A7%D9%86%D8%AA%DB%8C%D9%86/",
+      "sourceImageUrl": "https://fva2.ir/content/shop/products/129/51711781898699.jpg",
+      "priceToman": 1480000,
+      "verifiedAttributes": {
+        "sourceProductId": "128626",
+        "sizesAsListed": ["L", "XL", "2XL"],
+        "descriptionAsListed": "سایز بندی L XL 2XL سایز اصلیتون رو ثبت کنید زمانی ک میخاین اطلاعاتتون رو وارد کنید داخل قسمت پیام رنگ مورد نطرتون هم بنویسید",
+        "imageWidth": 450,
+        "imageHeight": 600,
+        "imageAspectRatio": 0.75,
+        "team": "Argentina",
+        "productTypeFromTitle": "T-shirt",
+        "originalPriceToman": 1880000
+      },
+      "sourceDimensions": {
+        "width": 450,
+        "height": 600
+      },
+      "derivatives": [
+        {
+          "path": "/images/shavandi/argentina-shirt-320.webp",
+          "width": 320,
+          "height": 427
+        },
+        {
+          "path": "/images/shavandi/argentina-shirt.webp",
+          "width": 450,
+          "height": 600
+        }
+      ],
+      "observedAt": "2026-11-02T17:36:26.7511847Z",
+      "rights": "confirmed-by-user-2026-11-02",
+      "demoFacts": [
+        "Availability and checkout are simulated.",
+        "Blanket size selection is demo unless the listed height range is given.",
+        "Material and care are unspecified by the source.",
+        "Fan version and official licensing are unverified."
+      ]
+    },
+    {
+      "kind": "temporary",
+      "path": "/images/hero.webp",
+      "sourceImageUrl": "https://images.unsplash.com/photo-1539109136881-3be0616acf4b",
+      "sourcePage": "https://unsplash.com/license",
+      "width": 1600,
+      "height": 2400,
+      "rights": "Unsplash license",
+      "verifiedAttributes": [],
+      "demoFacts": [
+        "Temporary illustration of the previous sample catalog; not Shavandi inventory.",
+        "All associated product names, prices, sizes, material, care, and availability are fixtures."
+      ]
+    },
+    {
+      "kind": "temporary",
+      "path": "/images/cotton-top.webp",
+      "sourceImageUrl": "https://images.unsplash.com/photo-1598554747436-c9293d6a588f",
+      "sourcePage": "https://unsplash.com/license",
+      "width": 800,
+      "height": 1200,
+      "rights": "Unsplash license",
+      "verifiedAttributes": [],
+      "demoFacts": [
+        "Temporary illustration of the previous sample catalog; not Shavandi inventory.",
+        "All associated product names, prices, sizes, material, care, and availability are fixtures."
+      ]
+    },
+    {
+      "kind": "temporary",
+      "path": "/images/knit-poncho.webp",
+      "sourceImageUrl": "https://images.unsplash.com/photo-1434389677669-e08b4cac3105",
+      "sourcePage": "https://unsplash.com/license",
+      "width": 800,
+      "height": 1148,
+      "rights": "Unsplash license",
+      "verifiedAttributes": [],
+      "demoFacts": [
+        "Temporary illustration of the previous sample catalog; not Shavandi inventory.",
+        "All associated product names, prices, sizes, material, care, and availability are fixtures."
+      ]
+    },
+    {
+      "kind": "temporary",
+      "path": "/images/denim.webp",
+      "sourceImageUrl": "https://images.unsplash.com/photo-1541099649105-f69ad21f3246",
+      "sourcePage": "https://unsplash.com/license",
+      "width": 800,
+      "height": 1200,
+      "rights": "Unsplash license",
+      "verifiedAttributes": [],
+      "demoFacts": [
+        "Temporary illustration of the previous sample catalog; not Shavandi inventory.",
+        "All associated product names, prices, sizes, material, care, and availability are fixtures."
+      ]
+    },
+    {
+      "kind": "temporary",
+      "path": "/images/rust-bomber.webp",
+      "sourceImageUrl": "https://images.unsplash.com/photo-1591047139829-d91aecb6caea",
+      "sourcePage": "https://unsplash.com/license",
+      "width": 800,
+      "height": 1066,
+      "rights": "Unsplash license",
+      "verifiedAttributes": [],
+      "demoFacts": [
+        "Temporary illustration of the previous sample catalog; not Shavandi inventory.",
+        "All associated product names, prices, sizes, material, care, and availability are fixtures."
+      ]
+    },
+    {
+      "kind": "temporary",
+      "path": "/images/rose-cargo.webp",
+      "sourceImageUrl": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1",
+      "sourcePage": "https://unsplash.com/license",
+      "width": 800,
+      "height": 1200,
+      "rights": "Unsplash license",
+      "verifiedAttributes": [],
+      "demoFacts": [
+        "Temporary illustration of the previous sample catalog; not Shavandi inventory.",
+        "All associated product names, prices, sizes, material, care, and availability are fixtures."
+      ]
+    },
+    {
+      "kind": "temporary",
+      "path": "/images/everyday-dress.webp",
+      "sourceImageUrl": "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446",
+      "sourcePage": "https://unsplash.com/license",
+      "width": 800,
+      "height": 1199,
+      "rights": "Unsplash license",
+      "verifiedAttributes": [],
+      "demoFacts": [
+        "Temporary illustration of the previous sample catalog; not Shavandi inventory.",
+        "All associated product names, prices, sizes, material, care, and availability are fixtures."
+      ]
+    },
+    {
+      "kind": "temporary",
+      "path": "/images/violet-lace.webp",
+      "sourceImageUrl": "https://images.unsplash.com/photo-1551803091-e20673f15770",
+      "sourcePage": "https://unsplash.com/license",
+      "width": 800,
+      "height": 1067,
+      "rights": "Unsplash license",
+      "verifiedAttributes": [],
+      "demoFacts": [
+        "Temporary illustration of the previous sample catalog; not Shavandi inventory.",
+        "All associated product names, prices, sizes, material, care, and availability are fixtures."
+      ]
+    },
+    {
+      "kind": "temporary",
+      "path": "/images/wardrobe.webp",
+      "sourceImageUrl": "https://images.unsplash.com/photo-1490481651871-ab68de25d43d",
+      "sourcePage": "https://unsplash.com/license",
+      "width": 1000,
+      "height": 667,
+      "rights": "Unsplash license",
+      "verifiedAttributes": [],
+      "demoFacts": [
+        "Temporary illustration of the previous sample catalog; not Shavandi inventory.",
+        "All associated product names, prices, sizes, material, care, and availability are fixtures."
+      ]
+    },
+    {
+      "kind": "temporary",
+      "path": "/images/collection.webp",
+      "sourceImageUrl": "https://images.unsplash.com/photo-1483985988355-763728e1935b",
+      "sourcePage": "https://unsplash.com/license",
+      "width": 1000,
+      "height": 667,
+      "rights": "Unsplash license",
+      "verifiedAttributes": [],
+      "demoFacts": [
+        "Temporary illustration of the previous sample catalog; not Shavandi inventory.",
+        "All associated product names, prices, sizes, material, care, and availability are fixtures."
+      ]
+    },
+    {
+      "kind": "temporary",
+      "path": "/images/mens-placeholder.svg",
+      "source": "Original SVG illustration created for this preview on 2026-11-02",
+      "width": 640,
+      "height": 720,
+      "rights": "original-work",
+      "verifiedAttributes": [],
+      "demoFacts": [
+        "Temporary category illustration, not a product photo.",
+        "No men’s product inventory is represented."
+      ]
+    }
+  ]
+}

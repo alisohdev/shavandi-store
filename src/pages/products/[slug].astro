@@ -13,7 +13,11 @@ export const getStaticPaths = (() =>
 
 type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 const { product } = Astro.props;
-const related = products.filter((item) => item.id !== product.id).slice(0, 4);
+const related = products
+  .filter(
+    (item) => item.id !== product.id && item.category === product.category,
+  )
+  .slice(0, 4);
 ---
 
 <StoreLayout
@@ -41,8 +45,8 @@ const related = products.filter((item) => item.id !== product.id).slice(0, 4);
     >
       <div class="section-heading">
         <div>
-          <p class="eyebrow">کنار هم، بهتر</p>
-          <h2 id="related-heading">برای کامل‌کردن ترکیب</h2>
+          <p class="eyebrow">از همین مجموعه</p>
+          <h2 id="related-heading">انتخاب‌های دیگر</h2>
         </div>
       </div>
       <div class="product-grid">

@@ -1,0 +1,218 @@
+.shavandi-hero {
+  min-height: 570px;
+  background: #eeefe8;
+}
+.shavandi-hero .hero-copy {
+  padding-block: 40px;
+}
+.shavandi-hero .hero-copy > .eyebrow {
+  margin-bottom: 16px;
+}
+.shavandi-hero h1 {
+  font-size: clamp(48px, 4.7vw, 68px);
+  line-height: 1.5;
+}
+.shavandi-hero .hero-photo {
+  background: #acb3b1;
+}
+.shavandi-hero .hero-photo > img {
+  max-height: 570px;
+  height: 570px;
+  width: 100%;
+}
+.hero-sport-link {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 28px;
+  padding-top: 21px;
+  border-top: 1px solid #d3d8c9;
+  width: 100%;
+}
+.hero-sport-link > img {
+  width: 88px;
+  height: 88px;
+  background: #d8dad5;
+}
+.hero-sport-link > span {
+  display: grid;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.hero-sport-link strong {
+  color: var(--ink);
+  font-weight: 500;
+  font-size: 16px;
+}
+.home-collections {
+  padding-top: 46px;
+}
+.home-collections .section-heading {
+  margin-bottom: 24px;
+}
+.home-collections .section-heading h2 {
+  font-size: 26px;
+}
+.collection-note {
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.9;
+}
+.collection-caption h3 {
+  font-size: 19px;
+}
+.collection-photo {
+  background: #e2e4dc;
+}
+.product-provenance {
+  font-size: 10px;
+  line-height: 1.9;
+  color: var(--olive);
+  margin-top: 12px;
+}
+.product-provenance.is-temporary {
+  color: #766547;
+}
+.price-provenance {
+  font-size: 9px;
+  line-height: 1.9;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.product-sizes {
+  line-height: 1.9;
+}
+.product-card[data-provenance="sourced"] .product-photo {
+  background: #d7dbd6;
+}
+.product-card[data-provenance="sourced"] .product-photo:hover img {
+  transform: none;
+}
+.sports-section {
+  background: var(--wash);
+}
+.section-context {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 2.1;
+  margin: -12px 0 28px;
+  max-width: 740px;
+}
+.temporary-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.everyday-preview {
+  border-bottom: 1px solid var(--line);
+}
+.source-facts {
+  font-size: 11px;
+  line-height: 2;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+  margin-top: 18px;
+}
+.source-facts ul {
+  margin: 8px 0;
+  padding-inline-start: 18px;
+}
+.source-facts a {
+  color: var(--olive);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.source-facts > p:last-child {
+  margin-top: 10px;
+}
+.empty-collection {
+  padding: 35px;
+  background: var(--wash);
+  font-size: 13px;
+  line-height: 2.1;
+}
+.empty-collection .text-link {
+  display: flex;
+  width: fit-content;
+  margin-top: 12px;
+}
+.admin-live-copy > .product-provenance,
+.admin-product-identity .product-provenance {
+  font-size: 10px;
+}
+@media (max-width: 900px) {
+  .collection-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .shavandi-hero .hero-copy {
+    padding-inline-start: 32px;
+    padding-inline-end: 25px;
+  }
+  .shavandi-hero h1 {
+    font-size: 48px;
+  }
+}
+@media (max-width: 540px) {
+  .shavandi-hero .hero-copy {
+    padding: 30px 24px 25px;
+  }
+  .shavandi-hero h1 {
+    font-size: 44px;
+  }
+  .shavandi-hero .hero-description {
+    font-size: 12px;
+  }
+  .shavandi-hero .hero-photo {
+    height: 360px;
+  }
+  .shavandi-hero .hero-photo > img {
+    height: 360px;
+  }
+  .hero-sport-link {
+    margin-top: 24px;
+    padding-top: 18px;
+  }
+  .hero-sport-link > img {
+    width: 70px;
+    height: 70px;
+  }
+  .home-collections {
+    padding-top: 30px;
+  }
+  .home-collections .section-heading h2 {
+    font-size: 23px;
+  }
+  .collection-caption {
+    gap: 5px;
+  }
+  .collection-caption h3 {
+    font-size: 16px;
+  }
+  .collection-caption p,
+  .collection-note {
+    font-size: 9px;
+  }
+  .collection-arrow {
+    width: 27px;
+    height: 27px;
+  }
+  .product-provenance {
+    font-size: 9px;
+  }
+  .price-provenance {
+    font-size: 8px;
+  }
+  .section-context {
+    font-size: 10px;
+    margin-top: -7px;
+  }
+  .temporary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .empty-collection {
+    padding: 24px;
+    font-size: 12px;
+  }
+}

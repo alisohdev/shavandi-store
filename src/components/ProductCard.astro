@@ -3,8 +3,11 @@ import {
   availableSizes,
   formatPrice,
   isAvailable,
+  priceLabel,
+  provenanceLabel,
   type Product,
 } from "../data/catalog";
+import CatalogImage from "./CatalogImage.astro";
 interface Props {
   product: Product;
 }
@@ -14,20 +17,15 @@ const image = firstColor.images[0];
 const available = isAvailable(product);
 ---
 
-<article class="product-card">
+<article class="product-card" data-provenance={product.provenance.kind}>
   <a
     class="product-photo"
     href={`/products/${product.slug}/`}
     aria-label={`مشاهدهٔ ${product.name}`}
   >
-    <img
-      src={image.src}
-      alt={image.alt}
-      width="800"
-      height="1067"
-      loading="lazy"
-      decoding="async"
-      style={{ objectPosition: image.position }}
+    <CatalogImage
+      image={image}
+      sizes="(max-width: 540px) 46vw, (max-width: 900px) 45vw, 23vw"
     />
     {(!available || product.tag === "new") && (
       <span class:list={["product-tag", { "product-tag-muted": !available }]}>
@@ -38,6 +36,14 @@ const available = isAvailable(product);
       دیدن جزئیات <span aria-hidden="true">↖</span>
     </span>
   </a>
+  <p
+    class:list={[
+      "product-provenance",
+      { "is-temporary": product.provenance.kind === "temporary" },
+    ]}
+  >
+    {provenanceLabel(product.provenance)}
+  </p>
   <div class="product-meta">
     <div>
       <p class="product-category">{product.category}</p>
@@ -61,14 +67,15 @@ const available = isAvailable(product);
     <span>{formatPrice(product.priceToman)}</span>
     <span class="currency">تومان</span>
   </p>
+  <p class="price-provenance">{priceLabel(product.provenance)}</p>
   <p class="product-sizes">
     {available ? (
       <>
-        <span class="sr-only">اندازه‌های موجود:</span>
+        <span>موجودی نمایشی · </span>
         <bdi>{availableSizes(product).join(" · ")}</bdi>
       </>
     ) : (
-      "همهٔ اندازه‌ها ناموجود"
+      "ناموجود در دادهٔ نمونه"
     )}
   </p>
 </article>

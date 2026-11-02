@@ -416,7 +416,7 @@ summary:focus-visible,
 }
 .collection-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 24px;
 }
 .collection-photo {
@@ -917,11 +917,11 @@ summary:focus-visible,
     display: none;
   }
   .collection-grid {
-    grid-template-columns: 1fr;
-    gap: 30px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 26px 12px;
   }
   .collection-photo {
-    aspect-ratio: 1.35 / 1;
+    aspect-ratio: 1 / 1;
   }
   .collection-caption {
     margin-top: 12px;

@@ -1,6 +1,13 @@
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { formatPrice, isAvailable, type Product } from "@/data/catalog";
+import {
+  formatPrice,
+  isAvailable,
+  priceLabel,
+  provenanceLabel,
+  type Product,
+} from "@/data/catalog";
+import CatalogImage from "./CatalogImage";
 import {
   createProductDraft,
   parseDraftPrice,
@@ -74,12 +81,12 @@ export default function AdminEditor({
     <div className="admin-editor-preview">
       <p className="preview-notice admin-scope-note">
         ویرایش‌ها فقط در همین صفحه‌اند. «اعمال در پیش‌نمایش» جدول و آمار اینجا
-        را تغییر می‌دهد؛ فروشگاه و سبد از دادهٔ اصلی نمونه استفاده می‌کنند. با
+        را تغییر می‌دهد؛ فروشگاه و سبد از کاتالوگ اولیه استفاده می‌کنند. با
         تازه‌کردن صفحه، همهٔ ویرایش‌ها پاک می‌شوند.
       </p>
       <div className="admin-metrics">
         <div>
-          <span>محصول نمونه</span>
+          <span>محصول در پیش‌نمایش</span>
           <strong>{formatPrice(appliedProducts.length)}</strong>
         </div>
         <div>
@@ -208,7 +215,7 @@ export default function AdminEditor({
               )}
             </div>
             <div className="form-field">
-              <label htmlFor="product-price">قیمت نمونه (تومان)</label>
+              <label htmlFor="product-price">قیمت در ویرایشگر (تومان)</label>
               <input
                 id="product-price"
                 name="priceToman"
@@ -321,7 +328,7 @@ export default function AdminEditor({
                   });
                   setErrors({});
                   setNotice(
-                    "این محصول به دادهٔ نمونهٔ اولیه برگشت؛ جدول و آمار هم به‌روز شدند.",
+                    "این محصول به دادهٔ اولیه برگشت؛ جدول و آمار هم به‌روز شدند.",
                   );
                 }}
               >
@@ -348,12 +355,9 @@ export default function AdminEditor({
               <p className="eyebrow">هم‌زمان با تایپ</p>
               <h3 id="live-preview-heading">نمای زندهٔ محصول</h3>
             </div>
-            <img
-              src={image.src}
-              alt={image.alt}
-              width="400"
-              height="533"
-              style={{ objectPosition: image.position }}
+            <CatalogImage
+              image={image}
+              sizes="(max-width: 540px) 90vw, 350px"
             />
             <div className="admin-live-copy">
               <span
@@ -364,8 +368,14 @@ export default function AdminEditor({
                   : "ناموجود در پیش‌نمایش"}
               </span>
               <h3>{liveProduct.name}</h3>
+              <p className="product-provenance">
+                {provenanceLabel(liveProduct.provenance)}
+              </p>
               <p className="admin-live-price">
                 {formatPrice(liveProduct.priceToman)} تومان
+              </p>
+              <p className="price-provenance">
+                {priceLabel(liveProduct.provenance)}
               </p>
               <p className="admin-live-description">
                 {liveProduct.description}
@@ -386,8 +396,8 @@ export default function AdminEditor({
                 </p>
               )}
               <p className="field-hint">
-                عکس و مشخصات دیگر از دادهٔ نمونه‌اند. این نما فقط برای همین
-                ویرایشگر است.
+                برچسب منبع برای دادهٔ اولیه است. با تغییر نام، توضیح یا قیمت،
+                اطلاعات این نما «ویرایش محلی» می‌شود و تأیید منبع ندارد.
               </p>
             </div>
           </aside>
@@ -417,7 +427,7 @@ export default function AdminEditor({
                   draft: createProductDraft(original),
                 });
               setErrors({});
-              setNotice("همهٔ محصولات به دادهٔ نمونهٔ اولیه برگشتند.");
+              setNotice("همهٔ محصولات به دادهٔ اولیه برگشتند.");
             }}
           >
             بازنشانی همه
@@ -436,7 +446,7 @@ export default function AdminEditor({
             <thead>
               <tr>
                 <th scope="col">محصول</th>
-                <th scope="col">قیمت نمونه (تومان)</th>
+                <th scope="col">قیمت (تومان)</th>
                 <th scope="col">رنگ‌ها</th>
                 <th scope="col">وضعیت پیش‌نمایش</th>
                 <th scope="col">ویرایش</th>
@@ -450,22 +460,27 @@ export default function AdminEditor({
                 >
                   <th scope="row">
                     <div className="admin-product-identity">
-                      <img
-                        src={product.colorways[0].images[0].src}
-                        alt=""
-                        width="40"
-                        height="52"
-                        loading="lazy"
+                      <CatalogImage
+                        image={product.colorways[0].images[0]}
+                        sizes="40px"
                       />
                       <span>
                         {product.name}
                         <small>
                           <bdi>{product.id.toUpperCase()}</bdi>
                         </small>
+                        <small className="product-provenance">
+                          {provenanceLabel(product.provenance)}
+                        </small>
                       </span>
                     </div>
                   </th>
-                  <td>{formatPrice(product.priceToman)}</td>
+                  <td>
+                    {formatPrice(product.priceToman)}
+                    <p className="price-provenance">
+                      {priceLabel(product.provenance)}
+                    </p>
+                  </td>
                   <td>{formatPrice(product.colorways.length)}</td>
                   <td>
                     <span

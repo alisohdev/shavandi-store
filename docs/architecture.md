@@ -2,15 +2,15 @@
 
 ## Scope
 
-The Persian RTL storefront uses static fixture data, a browser-local preview cart, a simulated checkout, and a public local product editor. It has no database, API routes, server adapter, authentication, account, real order, payment, SMS, or operational admin access. Persian notices identify sample prices, inventory, shipping, simulation, and the editor's local scope. Only SKU/quantity pairs persist between pages; personal details and product edits stay in memory.
+The Persian RTL storefront uses audited source records alongside static sample data, a browser-local preview cart, a simulated checkout, and a public local product editor. It has no database, API routes, server adapter, authentication, account, real order, payment, SMS, or operational admin access. Persian notices distinguish source prices from sample prices, identify demo inventory, shipping, simulation, and the editor's local scope. Only SKU/quantity pairs persist between pages; personal details and product edits stay in memory.
 
 ## Design direction
 
-The subject is a contemporary women's clothing store for people building a practical everyday wardrobe. The home page helps visitors discover the collection and follow ordinary product links.
+The storefront brings cozy wearable blankets from Shavandi Store and football clothing from Shavandi Sport into one experience, with clearly temporary women's clothing and a men's collection awaiting real products. The home page introduces all four categories and gives the eight sourced products the main product sections. Ordinary links lead to collection and product pages.
 
 The palette is paper `#f7f7f2`, graphite `#232621`, olive `#576047`, mist `#eceee6`, muted gray `#6c7066`, and divider `#d9dcd2`. Local Vazirmatn carries Persian display, body, and utility text; an understated Arial wordmark supplies the Latin identity. The provisional name is SHAVANDI / شواندی.
 
-The signature is a large street-style photograph beside an oversized, two-line Persian headline. Quiet product grids and unboxed captions leave the clothing in focus. Desktop uses four product columns; narrow screens use two. Mobile navigation uses a native disclosure, with Escape and navigation closing it. The interface includes visible focus, a skip link, text labels, explicit sold-out sizes, and reduced-motion support.
+The signature is the actual shark wearable-blanket photo beside a two-line Persian headline and a secondary football photo. Four category tiles sit near the hero, followed by cozy and sport grids. Desktop uses four product and category columns; narrow screens use two. Local responsive images preserve the full sourced garments without cropping or upscaling. Mobile navigation uses a native disclosure, with Escape and navigation closing it. The interface includes visible focus, a skip link, text labels, explicit sold-out sizes, and reduced-motion support.
 
 Two structures were compared:
 
@@ -24,6 +24,10 @@ The initial storefront uses A, with B's explicit unique SKUs and one island owni
 ## Data boundary
 
 `src/data/catalog.ts` is the single typed source for products and editorial collections. `Product` owns colorways; each colorway has a non-empty image list and a non-empty list of explicit SKU/size/availability combinations. Product and card availability derive from those combinations. A product with all variants sold out is displayed as unavailable.
+
+`ProductProvenance` is a discriminated union: sourced data carries its product-page URL, audit date, confirmed reuse rights, verified facts, and demo facts; temporary data carries its image credit and notice. The local editor adds a local-edit variant retaining original attribution whenever a name, description, or price changes. Source verification therefore cannot silently carry over to edited copy or prices. Availability remains demo for every product. The original eight product identities and SKUs are retained alongside eight sourced records. Four primary curated collections coexist with the original three sample collection routes; the men's category is intentionally empty.
+
+`docs/asset-manifest.json` records the source product pages, original image URLs, prices, verified attributes, demo fields, and responsive derivative dimensions. The raw source HTML and JPEGs are development evidence outside the repository. Astro and React image renderers share `ProductImage` metadata and explicit sizes. Sourced photos use native dimensions and contain fitting; temporary references retain their existing presentation.
 
 Prices are positive integer **toman**, never rial. All variants of a product share its product price in F0. Future per-SKU pricing belongs at that boundary when it is required. There is no parallel stock counter or independent list of available sizes.
 
@@ -45,7 +49,7 @@ Recipient details and receipts exist only in React state. Review preserves the r
 
 `AdminEditor.tsx` owns an applied copy of the seed catalog and one selected product draft. Name, description, price, and existing SKU availability feed a live product preview. Positive whole-toman prices are parsed from input strings, including Persian and Arabic digits, before application. `preview-editor.ts` reconstructs non-empty colorways/variants while preserving IDs, slugs, SKUs, sizes, images, and other fixture fields.
 
-Applying a valid draft updates only this island's table and availability metrics. Reset actions restore the selected product or all seed data. Neither drafts nor applied changes are persisted, and the public catalog/cart continue to use the original fixtures. Switching the selected product discards unapplied form changes; the interface explains this behavior. No product creation/deletion, authentication, remote save, or global catalog provider is introduced.
+Applying a valid draft updates only this island's table and availability metrics. Changed name, description, or price receives a local-edit provenance label in both live preview and the applied table. Reset actions restore the selected product or all seed data, including original provenance. Neither drafts nor applied changes are persisted, and the public catalog/cart continue to use the original fixtures. Switching the selected product discards unapplied form changes; the interface explains this behavior. No product creation/deletion, authentication, remote save, or global catalog provider is introduced.
 
 ## Rendering and components
 

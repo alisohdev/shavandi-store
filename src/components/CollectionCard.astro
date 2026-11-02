@@ -1,21 +1,18 @@
 ---
-import { collections } from "../data/catalog";
+import type { Collection } from "../data/catalog";
+import CatalogImage from "./CatalogImage.astro";
 import Icon from "./Icon.astro";
 interface Props {
-  collection: (typeof collections)[number];
+  collection: Collection;
 }
 const { collection } = Astro.props;
 ---
 
 <a class="collection-card" href={`/collections/${collection.slug}/`}>
   <div class="collection-photo">
-    <img
-      src={collection.image}
-      alt={collection.imageAlt}
-      width="1000"
-      height="1200"
-      loading="lazy"
-      decoding="async"
+    <CatalogImage
+      image={collection.image}
+      sizes="(max-width: 540px) 45vw, (max-width: 900px) 45vw, 22vw"
     />
   </div>
   <div class="collection-caption">
@@ -27,4 +24,5 @@ const { collection } = Astro.props;
       <Icon name="arrow-up-left" />
     </span>
   </div>
+  <p class="collection-note">{collection.note}</p>
 </a>

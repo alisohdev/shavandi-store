@@ -51,10 +51,11 @@ Bun's native formatter does not currently format Astro files. Only `.astro` file
 
 ## Routes
 
-- `/`: editorial hero, eight product cards, three collections, brand story.
-- `/collections/`: the complete sample catalog.
-- `/collections/everyday/`, `/collections/soft-layers/`, `/collections/out-in-the-city/`: static curated collections.
-- `/products/[slug]/`: eight static product pages with a React color/size picker and add-to-preview-cart action. Try `/products/city-coat/` to see color-dependent availability and selection reset; `/products/violet-lace-dress/` is entirely sold out.
+- `/`: real shark-blanket hero, four category tiles, four sourced cozy products, four sourced sports products, and two clearly temporary everyday examples.
+- `/collections/`: the complete catalog, with sourced products first and temporary products labeled.
+- `/collections/wearable-blankets/`, `/collections/football/`: eight sourced Shavandi products; `/collections/women/`: temporary sample clothing; `/collections/men/`: honest empty collection with an original temporary illustration.
+- `/collections/everyday/`, `/collections/soft-layers/`, `/collections/out-in-the-city/`: retained temporary sample collections.
+- `/products/[slug]/`: sixteen static product pages with a React color/size picker and add-to-preview-cart action. Try `/products/shark-wearable-blanket/` or `/products/real-madrid-white-shirt/` for sourced products. The original eight routes and SKUs still work; `/products/city-coat/` demonstrates color-dependent availability and selection reset; `/products/violet-lace-dress/` is entirely sold out.
 - `/checkout/`: local basket, recipient details, review, and a simulated receipt. A sample-basket button and sample recipient details make the full path easy to try.
 - `/about/`: brand direction and a clear explanation of the preview.
 - `/guide/`: sample size guide and clothing-care content.
@@ -63,16 +64,18 @@ Bun's native formatter does not currently format Astro files. Only `.astro` file
 
 ## Preview boundaries
 
-All product details, fabrics, prices, and stock are fixtures. Prices are integer **toman**, shared across each product's color/size variants. Persian labels identify the preview and sample data. Product names and default colors match the reference photography; the navy coat option explicitly identifies its missing photo.
+Eight products use real primary photos, names, and prices audited from fresh product pages at Shavandi Store and Shavandi Sport on **2026-11-02**. The user confirmed photo reuse rights that day. Listed height, colors, sports sizes, and the France kit's player-version title are recorded where verified. No fan-version, official-license, season, fabric, or care claim is invented. All availability and checkout remain simulated. Unknown blanket sizing is explicitly demo; the shark source specifies height 140–175 cm. Prices are integer **toman**, shared across each product's variants.
+
+The original eight sample products retain their IDs, slugs, SKUs, and cart behavior. Their Unsplash photos and every associated product field are clearly temporary, including the women's collection. Men's clothing has an original temporary SVG and an empty collection; no women's garment has been relabeled as men's inventory. `ProductProvenance` distinguishes sourced, temporary, and local-editor content. Persian labels identify source prices, sample prices, demo stock, and locally edited fields.
 
 The preview cart persists only versioned SKU/quantity pairs in `localStorage` under `shavandi.preview-cart.v1`. Names, images, availability, and prices resolve from the original catalog. Parsing removes unknown/unavailable combinations, merges duplicates, and clamps quantities to 1–9. Storage problems produce a visible notice; a sample basket lets checkout work within the current page when persistence is unavailable.
 
 Checkout accepts Persian, Arabic, and Latin digits for a basic Iranian mobile number and ten-digit postcode. Recipient details and the receipt stay in component memory. Completing the simulation snapshots the receipt and clears the preview cart; it creates no order and makes no payment or SMS request. Refreshing or leaving the page discards recipient details.
 
-The public admin editor changes name, description, positive whole-toman price, and availability of existing color/size combinations. Applying updates changes only the editor's table and computed metrics. It does not change the public storefront or checkout catalog. All editor changes reset on refresh; reset actions restore one product or all fixtures. IDs, routes, SKUs, images, and color/size identities are fixed.
+The public admin editor changes name, description, positive whole-toman price, and availability of existing color/size combinations. Editing name, description, or price replaces the source label with a local-edit label while retaining original attribution. Applying updates changes only the editor's table and computed metrics. It does not change the public storefront or checkout catalog. All editor changes reset on refresh; reset actions restore one product or all fixtures. IDs, routes, SKUs, images, and color/size identities are fixed.
 
 There is no backend, database, API route, login, account, real order, payment, SMS, or operational admin access. The public editor is an isolated demonstration. Use sample recipient information when trying checkout.
 
 The home page, navigation, collection cards, product cards, and content pages use Astro components. React hydrates only product controls, checkout, and the admin editor, one island on each relevant page. Navigation uses ordinary links; the mobile menu uses native disclosure. Fonts and photographs are local, with no runtime external requests.
 
-See [the design and architecture brief](docs/architecture.md) for the rendering comparison, data model, and future boundary; [asset credits](docs/assets.md) record image and font provenance.
+See [the design and architecture brief](docs/architecture.md) for the rendering comparison, data model, and future boundary; [asset credits](docs/assets.md) and the [asset manifest](docs/asset-manifest.json) record photo sources, verified facts, demo fields, rights, and every responsive derivative. Both Astro and React image renderers preserve the full sourced photo with `object-fit: contain`, real intrinsic dimensions, and local width-based `srcset`; no source photo is upscaled.

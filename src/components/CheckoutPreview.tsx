@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { formatPrice } from "@/data/catalog";
+import { formatPrice, priceLabel, provenanceLabel } from "@/data/catalog";
+import CatalogImage from "./CatalogImage";
 import {
   cartTotals,
   loadCart,
@@ -67,13 +68,7 @@ function OrderSummary({
       <ul className="checkout-items">
         {lines.map((line) => (
           <li key={line.sku} className="checkout-item">
-            <img
-              src={line.colorway.images[0].src}
-              alt={line.colorway.images[0].alt}
-              width="76"
-              height="101"
-              style={{ objectPosition: line.colorway.images[0].position }}
-            />
+            <CatalogImage image={line.colorway.images[0]} sizes="76px" />
             <div className="checkout-item-copy">
               <a href={`/products/${line.product.slug}/`}>
                 {line.product.name}
@@ -82,6 +77,12 @@ function OrderSummary({
                 {line.colorway.label} · اندازهٔ <bdi>{line.variant.size}</bdi>
               </p>
               <p>{formatPrice(line.product.priceToman)} تومان / هر عدد</p>
+              <p className="price-provenance">
+                {priceLabel(line.product.provenance)}
+              </p>
+              <p className="product-provenance">
+                {provenanceLabel(line.product.provenance)}
+              </p>
               {controls.kind === "editable" ? (
                 <div className="cart-line-controls">
                   <label htmlFor={`quantity-${line.sku}`}>تعداد</label>

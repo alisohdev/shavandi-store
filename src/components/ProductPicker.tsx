@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import CatalogImage from "./CatalogImage";
 import {
   formatPrice,
   isAvailable,
+  priceLabel,
+  provenanceLabel,
   type Colorway,
   type Product,
   type Variant,
@@ -60,13 +63,10 @@ export default function ProductPicker({ product }: { product: Product }) {
   return (
     <div className="product-detail-grid">
       <figure className="detail-gallery">
-        <img
-          src={image.src}
-          alt={image.alt}
-          width="800"
-          height="1067"
-          fetchPriority="high"
-          style={{ objectPosition: image.position }}
+        <CatalogImage
+          image={image}
+          sizes="(max-width: 540px) 92vw, 50vw"
+          eager
         />
         <figcaption>
           {colorway.imageNote ??
@@ -76,11 +76,36 @@ export default function ProductPicker({ product }: { product: Product }) {
       <div className="product-detail-copy">
         <p className="eyebrow">{product.category} / مجموعهٔ شواندی</p>
         <h1>{product.name}</h1>
+        <p className="product-provenance">
+          {provenanceLabel(product.provenance)}
+        </p>
         <p className="detail-price">
           <span>{formatPrice(product.priceToman)}</span>
           <span>تومان</span>
         </p>
         <p className="detail-description">{product.description}</p>
+        <p className="price-provenance">{priceLabel(product.provenance)}</p>
+        {product.provenance.kind === "sourced" && (
+          <div className="source-facts">
+            <p>اطلاعات ثبت‌شده از منبع</p>
+            <ul>
+              {product.provenance.verifiedFacts.map((fact) => (
+                <li key={fact}>{fact}</li>
+              ))}
+            </ul>
+            <a
+              href={product.provenance.sourcePage}
+              target="_blank"
+              rel="noreferrer"
+            >
+              صفحهٔ محصول در فروشگاه منبع ↗
+            </a>
+            <p>{product.provenance.demoFacts.join(" ")}</p>
+          </div>
+        )}
+        {product.provenance.kind === "temporary" && (
+          <p className="purchase-notice">{product.provenance.note}</p>
+        )}
         <p className="selection-label">انتخاب رنگ و اندازه · نمایشی</p>
         <fieldset className="color-fieldset">
           <legend>
@@ -190,7 +215,9 @@ export default function ProductPicker({ product }: { product: Product }) {
         </p>
         <dl className="product-facts">
           <div>
-            <dt>جنس نمونه</dt>
+            <dt>
+              {product.provenance.kind === "sourced" ? "جنس" : "جنس نمونه"}
+            </dt>
             <dd>{product.material}</dd>
           </div>
           <div>

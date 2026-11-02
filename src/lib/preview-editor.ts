@@ -46,8 +46,17 @@ function mapNonEmpty<T, U>(
 }
 
 export function previewProduct(product: Product, draft: ProductDraft): Product {
+  const changed =
+    draft.name.trim() !== product.name ||
+    draft.description.trim() !== product.description ||
+    (parseDraftPrice(draft.priceToman) ?? product.priceToman) !==
+      product.priceToman;
   return {
     ...product,
+    provenance:
+      changed && product.provenance.kind !== "local-edit"
+        ? { kind: "local-edit", original: product.provenance }
+        : product.provenance,
     name: draft.name.trim() || "نام محصول",
     description:
       draft.description.trim() || "توضیح کوتاه محصول اینجا نمایش داده می‌شود.",

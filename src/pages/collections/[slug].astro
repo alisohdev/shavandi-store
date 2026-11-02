@@ -2,6 +2,7 @@
 import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
 import StoreLayout from "../../layouts/StoreLayout.astro";
 import ProductCard from "../../components/ProductCard.astro";
+import CatalogImage from "../../components/CatalogImage.astro";
 import { collections, products } from "../../data/catalog";
 export const getStaticPaths = (() =>
   collections.map((collection) => ({
@@ -33,11 +34,10 @@ const selectedProducts = products.filter((product) =>
         <h1>{collection.name}</h1>
         <p>{collection.description}</p>
       </div>
-      <img
-        src={collection.image}
-        alt={collection.imageAlt}
-        width="1000"
-        height="700"
+      <CatalogImage
+        image={collection.image}
+        sizes="(max-width: 540px) 92vw, 45vw"
+        eager
       />
     </div>
     <nav class="collection-nav" aria-label="مجموعه‌ها">
@@ -55,8 +55,19 @@ const selectedProducts = products.filter((product) =>
       <span>
         {new Intl.NumberFormat("fa-IR").format(selectedProducts.length)} انتخاب
       </span>
-      <span>قیمت و موجودی نمونه</span>
+      <span>{collection.note}</span>
     </div>
+    {selectedProducts.length === 0 && (
+      <div class="empty-collection">
+        <p>
+          این بخش هنوز محصول تأییدشده‌ای ندارد. تصویرسازی مردانه موقت است؛ با
+          اضافه‌شدن اطلاعات واقعی، این مجموعه کامل می‌شود.
+        </p>
+        <a class="text-link" href="/collections/">
+          دیدن مجموعه‌های دیگر ←
+        </a>
+      </div>
+    )}
     <div class="product-grid">
       {selectedProducts.map((product) => (
         <ProductCard product={product} />

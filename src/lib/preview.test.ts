@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { products } from "../data/catalog";
+import { priceLabel, products, provenanceLabel } from "../data/catalog";
 import {
   addCartLine,
   cartTotals,
@@ -15,6 +15,7 @@ import {
 import {
   createProductDraft,
   parseDraftPrice,
+  previewProduct,
   validateProductDraft,
 } from "./preview-editor";
 
@@ -151,6 +152,36 @@ describe("preview contact details", () => {
 });
 
 describe("local product drafts", () => {
+  test("local edits stop claiming source verification while availability stays explicitly demo", () => {
+    const original = products.find(
+      (product) => product.slug === "real-madrid-white-shirt",
+    );
+    if (!original || original.provenance.kind !== "sourced")
+      throw new Error("Sourced shirt fixture is missing");
+    const draft = createProductDraft(original);
+    const unchanged = previewProduct(original, draft);
+    expect(unchanged.provenance).toBe(original.provenance);
+    for (const changed of [
+      { ...draft, name: "نام محلی" },
+      { ...draft, description: "توضیح محلی" },
+      { ...draft, priceToman: "1000000" },
+    ]) {
+      const edited = previewProduct(original, changed);
+      expect(edited.provenance.kind).toBe("local-edit");
+      expect(provenanceLabel(edited.provenance)).toContain("تأیید نشده");
+      expect(priceLabel(edited.provenance)).not.toContain("قیمت منبع");
+      if (edited.provenance.kind === "local-edit")
+        expect(edited.provenance.original).toBe(original.provenance);
+    }
+    const sku = original.colorways[0].variants[0].sku;
+    expect(
+      previewProduct(original, {
+        ...draft,
+        availability: { ...draft.availability, [sku]: "sold-out" },
+      }).provenance,
+    ).toBe(original.provenance);
+    expect(original.provenance.kind).toBe("sourced");
+  });
   test("accepts positive whole toman and rejects ambiguous or unsafe price values", () => {
     expect(parseDraftPrice(" ۱۲۳۴۵۶۷ ")).toBe(1234567);
     expect(parseDraftPrice("١٢٣٤٥٦٧")).toBe(1234567);
