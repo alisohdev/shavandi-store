@@ -1,0 +1,55 @@
+---
+import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+import StoreLayout from "../../layouts/StoreLayout.astro";
+import ProductPicker from "../../components/ProductPicker";
+import ProductCard from "../../components/ProductCard.astro";
+import { products } from "../../data/catalog";
+
+export const getStaticPaths = (() =>
+  products.map((product) => ({
+    params: { slug: product.slug },
+    props: { product },
+  }))) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+const { product } = Astro.props;
+const related = products.filter((item) => item.id !== product.id).slice(0, 4);
+---
+
+<StoreLayout
+  title={`${product.name} | شواندی`}
+  description={product.description}
+>
+  <div class="page-width product-page">
+    <nav class="breadcrumbs" aria-label="مسیر صفحه">
+      <a href="/">شواندی</a>
+      <span aria-hidden="true">/</span>
+      <a href="/collections/">همهٔ انتخاب‌ها</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">{product.name}</span>
+    </nav>
+    <ProductPicker product={product} client:load />
+    <noscript>
+      <p class="purchase-notice">
+        برای تغییر رنگ و اندازه، جاوااسکریپت مرورگر را فعال کن. اطلاعات و تصویر
+        محصول بدون آن هم قابل مشاهده‌اند.
+      </p>
+    </noscript>
+    <section
+      class="section-space related-section"
+      aria-labelledby="related-heading"
+    >
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">کنار هم، بهتر</p>
+          <h2 id="related-heading">برای کامل‌کردن ترکیب</h2>
+        </div>
+      </div>
+      <div class="product-grid">
+        {related.map((item) => (
+          <ProductCard product={item} />
+        ))}
+      </div>
+    </section>
+  </div>
+</StoreLayout>

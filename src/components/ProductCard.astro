@@ -1,0 +1,74 @@
+---
+import {
+  availableSizes,
+  formatPrice,
+  isAvailable,
+  type Product,
+} from "../data/catalog";
+interface Props {
+  product: Product;
+}
+const { product } = Astro.props;
+const firstColor = product.colorways[0];
+const image = firstColor.images[0];
+const available = isAvailable(product);
+---
+
+<article class="product-card">
+  <a
+    class="product-photo"
+    href={`/products/${product.slug}/`}
+    aria-label={`مشاهدهٔ ${product.name}`}
+  >
+    <img
+      src={image.src}
+      alt={image.alt}
+      width="800"
+      height="1067"
+      loading="lazy"
+      decoding="async"
+      style={{ objectPosition: image.position }}
+    />
+    {(!available || product.tag === "new") && (
+      <span class:list={["product-tag", { "product-tag-muted": !available }]}>
+        {available ? "تازه" : "ناموجود"}
+      </span>
+    )}
+    <span class="photo-action">
+      دیدن جزئیات <span aria-hidden="true">↖</span>
+    </span>
+  </a>
+  <div class="product-meta">
+    <div>
+      <p class="product-category">{product.category}</p>
+      <h3>
+        <a href={`/products/${product.slug}/`}>{product.name}</a>
+      </h3>
+    </div>
+    <span
+      class="color-dots"
+      aria-label={`رنگ‌ها: ${product.colorways.map((colorway) => colorway.label).join("، ")}`}
+    >
+      {product.colorways.map((colorway) => (
+        <span
+          style={{ backgroundColor: colorway.swatch }}
+          title={colorway.label}
+        />
+      ))}
+    </span>
+  </div>
+  <p class="product-price">
+    <span>{formatPrice(product.priceToman)}</span>
+    <span class="currency">تومان</span>
+  </p>
+  <p class="product-sizes">
+    {available ? (
+      <>
+        <span class="sr-only">اندازه‌های موجود:</span>
+        <bdi>{availableSizes(product).join(" · ")}</bdi>
+      </>
+    ) : (
+      "همهٔ اندازه‌ها ناموجود"
+    )}
+  </p>
+</article>

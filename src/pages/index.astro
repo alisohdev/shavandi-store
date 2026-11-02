@@ -1,0 +1,110 @@
+---
+import StoreLayout from "../layouts/StoreLayout.astro";
+import ProductCard from "../components/ProductCard.astro";
+import CollectionCard from "../components/CollectionCard.astro";
+import Icon from "../components/Icon.astro";
+import { collections, products } from "../data/catalog";
+---
+
+<StoreLayout>
+  <section class="hero" aria-labelledby="hero-heading">
+    <div class="hero-copy">
+      <p class="eyebrow">انتخاب‌های تازه برای فصل تازه</p>
+      <h1 id="hero-heading">
+        روزمره،
+        <br />
+        با سلیقهٔ تو.
+      </h1>
+      <p class="hero-description">
+        لباس‌هایی ساده، برای کنار هم گذاشتن.
+        <br />
+        برای روزهایی که شبیه خودت می‌پوشی.
+      </p>
+      <a class="primary-link" href="#new-arrivals">
+        کشف انتخاب‌های پاییز
+        <Icon name="arrow-left" />
+      </a>
+      <p class="hero-edition" lang="en" dir="ltr">
+        THE EVERYDAY EDIT — AUTUMN 2026
+      </p>
+    </div>
+    <div class="hero-photo">
+      <img
+        src="/images/hero.webp"
+        alt="استایل پاییزی با پالتوی بلند آبی در یک خیابان آرام"
+        width="1600"
+        height="2000"
+        fetchpriority="high"
+      />
+      <span class="hero-photo-label">شواندی / پاییز ۱۴۰۵</span>
+    </div>
+  </section>
+  <div class="brand-line page-width">
+    <p>کمتر، بهتر، ماندگارتر.</p>
+    <span>فرم‌های راحت</span>
+    <span>رنگ‌های همراه</span>
+    <span>جزئیات فکرشده</span>
+  </div>
+  <section
+    class="section-space page-width"
+    id="new-arrivals"
+    aria-labelledby="new-heading"
+  >
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">تازه‌های شواندی</p>
+        <h2 id="new-heading">برای کمدِ هر روز</h2>
+      </div>
+      <a class="text-link" href="/collections/">
+        همهٔ انتخاب‌ها
+        <Icon name="arrow-left" />
+      </a>
+    </div>
+    <div class="product-grid">
+      {products.map((product) => (
+        <ProductCard product={product} />
+      ))}
+    </div>
+    <p class="catalog-disclaimer">
+      قیمت‌ها و موجودی‌ها در این پیش‌نمایش نمونه‌اند.
+    </p>
+  </section>
+  <section
+    class="collections-section section-space"
+    id="collections"
+    aria-labelledby="collections-heading"
+  >
+    <div class="page-width">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">هر روز، یک ترکیب تازه</p>
+          <h2 id="collections-heading">از اینجا شروع کن</h2>
+        </div>
+        <span class="section-note">لباس‌هایی که با هم جورند.</span>
+      </div>
+      <div class="collection-grid">
+        {collections.map((collection) => (
+          <CollectionCard collection={collection} />
+        ))}
+      </div>
+    </div>
+  </section>
+  <section class="story-section page-width" aria-labelledby="story-heading">
+    <p class="eyebrow">نگاه شواندی</p>
+    <h2 id="story-heading">
+      لباس خوب،
+      <br />
+      بخشی از زندگی‌ست.
+    </h2>
+    <div>
+      <p>
+        ما به کمدی فکر می‌کنیم که انتخاب‌کردن را ساده‌تر کند؛ با لباس‌هایی که
+        کنار هم می‌نشینند و به حال‌وهوای هر روزت جا می‌دهند.
+      </p>
+      <a class="text-link" href="/about/">
+        کمی بیشتر دربارهٔ ما
+        <Icon name="arrow-left" />
+      </a>
+    </div>
+  </section>
+</StoreLayout>

@@ -1,0 +1,30 @@
+---
+import { collections } from "../data/catalog";
+import Icon from "./Icon.astro";
+interface Props {
+  collection: (typeof collections)[number];
+}
+const { collection } = Astro.props;
+---
+
+<a class="collection-card" href={`/collections/${collection.slug}/`}>
+  <div class="collection-photo">
+    <img
+      src={collection.image}
+      alt={collection.imageAlt}
+      width="1000"
+      height="1200"
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
+  <div class="collection-caption">
+    <div>
+      <p>{collection.eyebrow}</p>
+      <h3>{collection.name}</h3>
+    </div>
+    <span class="collection-arrow">
+      <Icon name="arrow-up-left" />
+    </span>
+  </div>
+</a>

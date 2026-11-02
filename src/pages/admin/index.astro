@@ -1,0 +1,106 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+
+import { formatPrice, isAvailable, products } from "../../data/catalog";
+const variants = products.flatMap((product) =>
+  product.colorways.flatMap((colorway) => colorway.variants),
+);
+const formatNumber = new Intl.NumberFormat("fa-IR");
+---
+
+<AdminLayout title="پیش‌نمایش مدیریت">
+  <div class="admin-heading">
+    <p class="eyebrow">نمای کلی / دادهٔ نمونه</p>
+    <h1>یک نگاه به مجموعه</h1>
+    <p>
+      این صفحه، پیش‌نمایش ظاهر مدیریت است. ویرایش محصول، ثبت سفارش و عملیات
+      مدیریتی فعال نیست.
+    </p>
+  </div>
+  <div class="admin-metrics">
+    <div>
+      <span>محصول نمونه</span>
+      <strong>{formatNumber.format(products.length)}</strong>
+    </div>
+    <div>
+      <span>ترکیب رنگ و اندازه</span>
+      <strong>{formatNumber.format(variants.length)}</strong>
+    </div>
+    <div>
+      <span>ترکیب موجود در نمونه</span>
+      <strong>
+        {formatNumber.format(
+          variants.filter((variant) => variant.availability === "available")
+            .length,
+        )}
+      </strong>
+    </div>
+  </div>
+  <section class="admin-products" aria-labelledby="product-table-heading">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">فهرست نمایشی</p>
+        <h2 id="product-table-heading">محصولات مجموعه</h2>
+      </div>
+      <span class="admin-badge">بدون امکان ویرایش</span>
+    </div>
+    <div
+      class="admin-table-wrap"
+      role="region"
+      aria-label="جدول محصولات نمونه؛ برای دیدن همهٔ ستون‌ها افقی پیمایش کنید"
+      tabindex="0"
+    >
+      <table class="admin-table" id="product-table">
+        <caption class="sr-only">
+          محصولات نمونهٔ شواندی، قیمت و وضعیت نمونه
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">محصول</th>
+            <th scope="col">شناسه</th>
+            <th scope="col">قیمت نمونه (تومان)</th>
+            <th scope="col">رنگ‌ها</th>
+            <th scope="col">وضعیت نمونه</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((product) => (
+            <tr>
+              <th scope="row">
+                <a href={`/products/${product.slug}/`}>
+                  <img
+                    src={product.colorways[0].images[0].src}
+                    alt=""
+                    width="40"
+                    height="52"
+                    loading="lazy"
+                  />
+                  <span>{product.name}</span>
+                </a>
+              </th>
+              <td>
+                <bdi>{product.id.toUpperCase()}</bdi>
+              </td>
+              <td>{formatPrice(product.priceToman)}</td>
+              <td>{formatNumber.format(product.colorways.length)}</td>
+              <td>
+                <span
+                  class:list={[
+                    "admin-availability",
+                    { "is-unavailable": !isAvailable(product) },
+                  ]}
+                >
+                  {isAvailable(product) ? "موجود" : "ناموجود"}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <p class="admin-end-note">
+    این پوستهٔ عمومی به حساب کاربری یا دادهٔ واقعی متصل نیست. تمام اعداد از
+    محصولات نمونهٔ همین فروشگاه محاسبه می‌شوند.
+  </p>
+</AdminLayout>

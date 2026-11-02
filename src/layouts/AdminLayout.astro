@@ -1,0 +1,59 @@
+---
+import "@fontsource/vazirmatn/400.css";
+import "@fontsource/vazirmatn/500.css";
+import "@fontsource/vazirmatn/600.css";
+import "../styles/global.css";
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta
+      name="description"
+      content="پوستهٔ نمایشی مدیریت شواندی با اطلاعات نمونه و بدون امکان تغییر داده‌ها."
+    />
+    <link rel="icon" href="/favicon.svg" />
+    <title>{title} | شواندی</title>
+  </head>
+  <body class="admin-body">
+    <a class="skip-link" href="#main-content">
+      رفتن به محتوای اصلی
+    </a>
+    <div class="admin-layout">
+      <aside class="admin-sidebar">
+        <a class="wordmark" href="/" aria-label="بازگشت به فروشگاه شواندی">
+          <span lang="en" dir="ltr">
+            SHAVANDI.
+          </span>
+        </a>
+        <p>پیش‌نمایش مدیریت</p>
+        <nav aria-label="منوی مدیریت">
+          <a href="/admin/" aria-current="page">
+            نمای کلی
+          </a>
+          <a href="#product-table">فهرست محصولات</a>
+          <a href="/">بازگشت به فروشگاه ↗</a>
+        </nav>
+        <div class="admin-sidebar-note">
+          محیط نمایشی
+          <br />
+          اطلاعات واقعی در این صفحه وجود ندارد.
+        </div>
+      </aside>
+      <main id="main-content" class="admin-main">
+        <div class="admin-topbar">
+          <span>فضای مدیریت شواندی</span>
+          <span class="admin-badge">فقط نمایش</span>
+        </div>
+        <slot />
+      </main>
+    </div>
+  </body>
+</html>

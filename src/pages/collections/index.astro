@@ -1,0 +1,32 @@
+---
+import StoreLayout from "../../layouts/StoreLayout.astro";
+import ProductCard from "../../components/ProductCard.astro";
+import { collections, products } from "../../data/catalog";
+---
+
+<StoreLayout title="همهٔ انتخاب‌ها | شواندی">
+  <div class="page-width catalog-page">
+    <div class="page-heading">
+      <p class="eyebrow">مجموعهٔ شواندی / پاییز ۱۴۰۵</p>
+      <h1>لباس‌هایی برای زندگی</h1>
+      <p>از یک انتخاب ساده شروع کن و ترکیب خودت را بساز.</p>
+    </div>
+    <nav class="collection-nav" aria-label="مجموعه‌ها">
+      <a href="/collections/" aria-current="page">
+        همهٔ انتخاب‌ها
+      </a>
+      {collections.map((collection) => (
+        <a href={`/collections/${collection.slug}/`}>{collection.name}</a>
+      ))}
+    </nav>
+    <div class="catalog-count">
+      <span>۸ انتخاب</span>
+      <span>قیمت و موجودی نمونه</span>
+    </div>
+    <div class="product-grid">
+      {products.map((product) => (
+        <ProductCard product={product} />
+      ))}
+    </div>
+  </div>
+</StoreLayout>
