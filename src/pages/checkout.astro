@@ -1,0 +1,36 @@
+---
+import StoreLayout from "../layouts/StoreLayout.astro";
+import CheckoutPreview from "../components/CheckoutPreview";
+---
+
+<StoreLayout
+  title="سبد و تسویهٔ نمایشی | شواندی"
+  description="پیش‌نمایش محلی سبد، اطلاعات گیرنده و تسویهٔ شواندی؛ بدون سفارش و پرداخت واقعی."
+>
+  <div class="page-width checkout-page">
+    <nav class="breadcrumbs" aria-label="مسیر صفحه">
+      <a href="/">شواندی</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">سبد و تسویهٔ نمایشی</span>
+    </nav>
+    <div class="checkout-page-heading">
+      <p class="eyebrow">از انتخاب تا یک تجربهٔ کامل</p>
+      <h1>سبد و تسویهٔ نمایشی</h1>
+      <p>
+        این یک تمرین خرید است. قیمت و ارسال نمونه‌اند؛ سفارش و پرداخت واقعی
+        انجام نمی‌شود.
+      </p>
+      <p class="checkout-privacy">
+        فقط انتخاب کالا و تعداد در مرورگر می‌ماند. اطلاعات گیرنده به جایی ارسال
+        یا ذخیره نمی‌شود.
+      </p>
+    </div>
+    <CheckoutPreview client:load />
+    <noscript>
+      <p class="preview-notice">
+        برای امتحان سبد و تسویهٔ نمایشی، جاوااسکریپت مرورگر را فعال کن.{" "}
+        <a href="/collections/">دیدن مجموعه‌ها</a>
+      </p>
+    </noscript>
+  </div>
+</StoreLayout>

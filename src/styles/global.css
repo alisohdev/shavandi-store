@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./preview.css";
 
 @theme inline {
   --color-background: var(--paper);
@@ -43,7 +44,8 @@ a {
 }
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 button,
@@ -767,7 +769,7 @@ summary:focus-visible,
     font-size: 8px;
     margin-top: 7px;
   }
-  .header-edition > span:first-child {
+  .header-edition > .edition-caption {
     display: none;
   }
   .header-edition [lang="en"] {

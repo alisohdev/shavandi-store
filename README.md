@@ -1,4 +1,4 @@
-# Shavandi store — F0
+# Shavandi store — local commerce preview
 
 A mobile-first Persian RTL clothing storefront built with Astro, Bun, React islands, shadcn/ui, Tailwind CSS, and strict TypeScript. SHAVANDI / شواندی is the provisional identity.
 
@@ -35,17 +35,17 @@ That temporary binary path is machine-specific. Keep your own Bun installation i
 
 ## Commands
 
-| Command                | Purpose                                                                 |
-| ---------------------- | ----------------------------------------------------------------------- |
-| `bun run dev`          | Start Astro development server                                          |
-| `bun run check`        | Astro and TypeScript diagnostics                                        |
-| `bun run lint`         | Native Bun lint for TS, TSX, and JavaScript config                      |
-| `bun run format`       | Native Bun formatting, then official Astro formatting                   |
-| `bun run format:check` | Check both formatting passes without writing                            |
-| `bun test`             | Validate fixture identities, availability, references, and local assets |
-| `bun run build`        | Generate the static website in `dist/`                                  |
-| `bun run preview`      | Serve the production build locally                                      |
-| `bun run validate`     | Run every source check, fixture tests, and production build             |
+| Command                | Purpose                                                                          |
+| ---------------------- | -------------------------------------------------------------------------------- |
+| `bun run dev`          | Start Astro development server                                                   |
+| `bun run check`        | Astro and TypeScript diagnostics                                                 |
+| `bun run lint`         | Native Bun lint for TS, TSX, and JavaScript config                               |
+| `bun run format`       | Native Bun formatting, then official Astro formatting                            |
+| `bun run format:check` | Check both formatting passes without writing                                     |
+| `bun test`             | Validate fixtures, cart parsing/totals, contact fields, and local product drafts |
+| `bun run build`        | Generate the static website in `dist/`                                           |
+| `bun run preview`      | Serve the production build locally                                               |
+| `bun run validate`     | Run every source check, tests, and production build                              |
 
 Bun's native formatter does not currently format Astro files. Only `.astro` files use the official `prettier-plugin-astro`, through a separate config and explicit file pattern. The official Astro VS Code extension is the default formatter for Astro. There is no ESLint or Biome substitution. Native commands include `--no-script` to avoid package-script recursion.
 
@@ -54,18 +54,25 @@ Bun's native formatter does not currently format Astro files. Only `.astro` file
 - `/`: editorial hero, eight product cards, three collections, brand story.
 - `/collections/`: the complete sample catalog.
 - `/collections/everyday/`, `/collections/soft-layers/`, `/collections/out-in-the-city/`: static curated collections.
-- `/products/[slug]/`: eight static product pages with a small React color/size picker. Try `/products/city-coat/` to see color-dependent availability and selection reset; `/products/violet-lace-dress/` is entirely sold out.
+- `/products/[slug]/`: eight static product pages with a React color/size picker and add-to-preview-cart action. Try `/products/city-coat/` to see color-dependent availability and selection reset; `/products/violet-lace-dress/` is entirely sold out.
+- `/checkout/`: local basket, recipient details, review, and a simulated receipt. A sample-basket button and sample recipient details make the full path easy to try.
 - `/about/`: brand direction and a clear explanation of the preview.
 - `/guide/`: sample size guide and clothing-care content.
-- `/admin/`: public, static admin shell with computed sample metrics and a read-only product table.
+- `/admin/`: public local product editor with live preview, applied table/metrics, and reset actions.
 - `/404.html`: custom missing-page content.
 
-## F0 boundaries
+## Preview boundaries
 
-All product details, fabrics, prices, and stock are fixtures. Prices are integer **toman**, shared across each product's color/size variants. Persian labels identify the preview and sample data. Selection is temporary and does not persist.
+All product details, fabrics, prices, and stock are fixtures. Prices are integer **toman**, shared across each product's color/size variants. Persian labels identify the preview and sample data. Product names and default colors match the reference photography; the navy coat option explicitly identifies its missing photo.
 
-This phase has no backend, database, API routes, login, account, basket, order flow, payment, SMS, or operational admin actions. The admin route is a visual shell, not an authenticated administration system. Product names and default colors match the reference photography; the navy coat option explicitly identifies its missing photo.
+The preview cart persists only versioned SKU/quantity pairs in `localStorage` under `shavandi.preview-cart.v1`. Names, images, availability, and prices resolve from the original catalog. Parsing removes unknown/unavailable combinations, merges duplicates, and clamps quantities to 1–9. Storage problems produce a visible notice; a sample basket lets checkout work within the current page when persistence is unavailable.
 
-The home page, navigation, collection cards, product cards, content pages, and admin use Astro components. Only the product picker hydrates React. Navigation is ordinary links; the mobile menu uses native disclosure. Fonts and photographs are local, with no runtime external requests.
+Checkout accepts Persian, Arabic, and Latin digits for a basic Iranian mobile number and ten-digit postcode. Recipient details and the receipt stay in component memory. Completing the simulation snapshots the receipt and clears the preview cart; it creates no order and makes no payment or SMS request. Refreshing or leaving the page discards recipient details.
+
+The public admin editor changes name, description, positive whole-toman price, and availability of existing color/size combinations. Applying updates changes only the editor's table and computed metrics. It does not change the public storefront or checkout catalog. All editor changes reset on refresh; reset actions restore one product or all fixtures. IDs, routes, SKUs, images, and color/size identities are fixed.
+
+There is no backend, database, API route, login, account, real order, payment, SMS, or operational admin access. The public editor is an isolated demonstration. Use sample recipient information when trying checkout.
+
+The home page, navigation, collection cards, product cards, and content pages use Astro components. React hydrates only product controls, checkout, and the admin editor, one island on each relevant page. Navigation uses ordinary links; the mobile menu uses native disclosure. Fonts and photographs are local, with no runtime external requests.
 
 See [the design and architecture brief](docs/architecture.md) for the rendering comparison, data model, and future boundary; [asset credits](docs/assets.md) record image and font provenance.
