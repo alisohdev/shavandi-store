@@ -8,6 +8,49 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type ShavandiAuthAuditEvent struct {
+	ID         int64
+	EventType  string
+	UserID     pgtype.UUID
+	SubjectKey []byte
+	IpKey      []byte
+	CreatedAt  pgtype.Timestamptz
+}
+
+type ShavandiAuthOtpChallenge struct {
+	IDVerifier   []byte
+	Phone        string
+	Purpose      string
+	UserID       pgtype.UUID
+	CodeVerifier []byte
+	Attempts     int32
+	Delivered    bool
+	CreatedAt    pgtype.Timestamptz
+	ExpiresAt    pgtype.Timestamptz
+	ConsumedAt   pgtype.Timestamptz
+}
+
+type ShavandiAuthOtpTarget struct {
+	Phone       string
+	Purpose     string
+	RequestedAt pgtype.Timestamptz
+}
+
+type ShavandiAuthRateLimit struct {
+	BucketKey       []byte
+	WindowStartedAt pgtype.Timestamptz
+	Attempts        int32
+}
+
+type ShavandiAuthSession struct {
+	TokenVerifier []byte
+	UserID        pgtype.UUID
+	AuthMethod    string
+	CreatedAt     pgtype.Timestamptz
+	ExpiresAt     pgtype.Timestamptz
+	RevokedAt     pgtype.Timestamptz
+}
+
 type ShavandiCategory struct {
 	ID           pgtype.UUID
 	Name         string
@@ -59,6 +102,16 @@ type ShavandiProductSlug struct {
 	ProductID pgtype.UUID
 	IsCurrent bool
 	CreatedAt pgtype.Timestamptz
+}
+
+type ShavandiUser struct {
+	ID           pgtype.UUID
+	Phone        string
+	Role         string
+	PasswordHash pgtype.Text
+	Active       bool
+	CreatedAt    pgtype.Timestamptz
+	UpdatedAt    pgtype.Timestamptz
 }
 
 type ShavandiVariant struct {

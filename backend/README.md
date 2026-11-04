@@ -1,6 +1,6 @@
 # Shavandi API foundation
 
-The Go API lives in this folder as a separate module. The Astro storefront stays at the repository root and remains a static preview. M1a adds the catalog schema, internal domain/write service, and read-only public API. The storefront does not call these endpoints.
+The Go API lives in this folder as a separate module. M1a adds the catalog schema, internal domain/write service, and read-only public API. M2 adds customer SMS authentication, separate administrator password-plus-SMS authentication, database sessions, security middleware, and a trusted administrator CLI. The Astro catalog remains a static preview. See [the M2 backend handoff](../docs/m2-backend.md) for the authentication contract, configuration, provisioning, and verification.
 
 ## Versions
 
@@ -23,6 +23,10 @@ $env:DATABASE_URL = 'postgres://<user>@127.0.0.1:5432/shavandi?sslmode=disable'
 $env:HTTP_ADDR = '127.0.0.1:8080'
 $env:DATABASE_MIN_CONNS = '0'
 $env:DATABASE_MAX_CONNS = '8'
+$env:APP_ENV = 'development'
+$env:AUTH_COOKIE_SECURE = 'false'
+$env:AUTH_ALLOWED_ORIGINS = 'http://localhost:4321,http://127.0.0.1:4321'
+# Set AUTH_SECRET to base64 encoding of at least 32 cryptographically random bytes.
 ```
 
 Replace the example URL with your local PostgreSQL connection details. Keep passwords in your local environment or PostgreSQL password file. Do not commit them.
@@ -61,7 +65,7 @@ go run ./cmd/api
 
 Press Ctrl+C to stop the API. The server drains active requests before it closes the PostgreSQL pool.
 
-The API serves `GET /health/live`, `GET /health/ready`, `GET /api/v1/categories`, `GET /api/v1/products`, and `GET /api/v1/products/{slug}`. Catalog responses include active categories, published products, effective variant prices, and image references. Liveness does not contact PostgreSQL. Readiness and catalog reads have bounded contexts. There are no HTTP mutation routes; the catalog service and write repository are internal to the Go application.
+The API serves `GET /health/live`, `GET /health/ready`, `GET /api/v1/categories`, `GET /api/v1/products`, and `GET /api/v1/products/{slug}`, plus authentication routes under `/api/v1/auth`. Catalog responses include active categories, published products, effective variant prices, and image references. Liveness does not contact PostgreSQL. Readiness and catalog reads have bounded contexts. The catalog service and write repository remain internal, with no catalog HTTP mutation routes. The default SMS sender returns a safe unavailable response until a real provider is integrated; there is no fixed-code login or provider bypass.
 
 ## Apply migrations and generate SQL code
 

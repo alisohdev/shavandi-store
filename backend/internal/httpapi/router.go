@@ -49,10 +49,17 @@ type productResponse struct {
 	Product catalog.PublicProduct `json:"product"`
 }
 
-func NewHandler(checkDatabase DatabaseCheck, catalogReader catalog.Reader, logger *slog.Logger) http.Handler {
+func NewHandler(checkDatabase DatabaseCheck, catalogReader catalog.Reader, logger *slog.Logger, options ...HandlerOption) http.Handler {
 	router := chi.NewRouter()
 	router.Use(requestIDMiddleware(logger))
 	router.Use(recoverPanics(logger))
+	settings := handlerOptions{}
+	for _, option := range options {
+		option(&settings)
+	}
+	if settings.authentication != nil {
+		registerAuthRoutes(router, settings.authentication, settings.authOptions)
+	}
 
 	router.Get("/health/live", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
