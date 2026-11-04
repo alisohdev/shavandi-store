@@ -1,0 +1,19 @@
+---
+import StoreLayout from "../layouts/StoreLayout.astro";
+import AuthAccess from "../components/AuthAccess";
+import "../styles/auth.css";
+---
+
+<StoreLayout
+  title="ورود و حساب کاربری | شواندی"
+  description="ورود به حساب شواندی با کد پیامک‌شده به شمارهٔ همراه."
+>
+  <div class="auth-page page-width">
+    <AuthAccess mode="customer" client:load />
+    <noscript>
+      <p class="preview-notice">
+        برای ورود به حساب، جاوااسکریپت مرورگر را فعال کن.
+      </p>
+    </noscript>
+  </div>
+</StoreLayout>

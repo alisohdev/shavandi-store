@@ -26,9 +26,14 @@ const links = [
       <span class="wordmark-persian">شواندی</span>
     </a>
     <div class="header-edition">
-      <a class="header-cart-link" href="/checkout/">
-        سبد نمایشی ↖
-      </a>
+      <div class="header-shop-links">
+        <a class="header-account-link" href="/login/">
+          ورود / حساب
+        </a>
+        <a class="header-cart-link" href="/checkout/">
+          سبد نمایشی ↖
+        </a>
+      </div>
       <span class="edition-caption">خانه، ورزش، هر روز</span>
       <span lang="en" dir="ltr">
         AUTUMN / 2026
@@ -40,6 +45,9 @@ const links = [
         <span>منو</span>
       </summary>
       <nav aria-label="منوی موبایل">
+        <a href="/login/">
+          ورود / حساب <Icon name="arrow-left" />
+        </a>
         {links.map((link) => (
           <a href={link.href}>
             {link.label}

@@ -1,19 +1,17 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
-import AdminEditor from "../../components/AdminEditor";
+import AuthAccess from "../../components/AuthAccess";
 import { products } from "../../data/catalog";
+import "../../styles/auth.css";
 ---
 
 <AdminLayout title="پیش‌نمایش ویرایش محصولات">
-  <div class="admin-heading">
-    <p class="eyebrow">کارگاه مجموعه / دادهٔ نمونه</p>
-    <h1>یک تغییر، یک نگاه تازه</h1>
-    <p>نام، توضیح، قیمت و موجودی محصولات را در یک پیش‌نمایش محلی امتحان کن.</p>
+  <div class="auth-admin-entry">
+    <AuthAccess mode="admin" seedProducts={products} client:load />
   </div>
-  <AdminEditor seedProducts={products} client:load />
   <noscript>
     <p class="preview-notice">
-      برای امتحان ویرایشگر محلی، جاوااسکریپت مرورگر را فعال کن.{" "}
+      برای ورود به مدیریت، جاوااسکریپت مرورگر را فعال کن.{" "}
       <a href="/collections/">دیدن کاتالوگ فروشگاه</a>
     </p>
   </noscript>
