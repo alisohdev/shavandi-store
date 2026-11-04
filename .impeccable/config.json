@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "src/styles/preview.css"
+        ],
+        "createdAt": "2026-11-04T05:46:32.033Z",
+        "reason": "Agent decision: pre-existing .preview-notice demo warning border verified in commit d514484; M2 user explicitly required preserving approved storefront and admin designs."
+      }
+    ]
+  }
+}
