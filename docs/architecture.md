@@ -2,7 +2,7 @@
 
 ## Scope
 
-The Persian RTL storefront uses audited source records alongside static sample data, a browser-local preview cart, a simulated checkout, and a public local product editor. It has no database, API routes, server adapter, authentication, account, real order, payment, SMS, or operational admin access. Persian notices distinguish source prices from sample prices, identify demo inventory, shipping, simulation, and the editor's local scope. Only SKU/quantity pairs persist between pages; personal details and product edits stay in memory.
+The Persian RTL storefront uses audited source records alongside static sample data, a browser-local preview cart, a simulated checkout, and a public local product editor. The Astro app remains static and does not call the Go API. M1a provides read-only catalog endpoints plus liveness and PostgreSQL readiness; catalog mutations remain inside the service layer. The storefront has no authentication, account, real order, payment, SMS, or operational admin access. Persian notices distinguish source prices from sample prices, identify demo inventory, shipping, simulation, and the editor's local scope. Only SKU/quantity pairs persist between pages; personal details and product edits stay in memory.
 
 ## Design direction
 

@@ -74,7 +74,9 @@ Checkout accepts Persian, Arabic, and Latin digits for a basic Iranian mobile nu
 
 The public admin editor changes name, description, positive whole-toman price, and availability of existing color/size combinations. Editing name, description, or price replaces the source label with a local-edit label while retaining original attribution. Applying updates changes only the editor's table and computed metrics. It does not change the public storefront or checkout catalog. All editor changes reset on refresh; reset actions restore one product or all fixtures. IDs, routes, SKUs, images, and color/size identities are fixed.
 
-There is no backend, database, API route, login, account, real order, payment, SMS, or operational admin access. The public editor is an isolated demonstration. Use sample recipient information when trying checkout.
+The Astro frontend remains static. Its cart, checkout, and public editor do not call the API. The Go API provides liveness, PostgreSQL readiness, and read-only M1a catalog endpoints. There is no login, account, real order, payment, SMS, or operational admin access. The public editor is an isolated demonstration. Use sample recipient information when trying checkout.
+
+For Windows API setup, PostgreSQL migrations, sqlc generation, Go tests, and API builds, see [the backend instructions](backend/README.md). The [M1a handoff](docs/m1a-handoff.md) describes the catalog schema, service boundaries, API contract, pricing, and fixture mapping. The frontend commands remain at the repository root.
 
 The home page, navigation, collection cards, product cards, and content pages use Astro components. React hydrates only product controls, checkout, and the admin editor, one island on each relevant page. Navigation uses ordinary links; the mobile menu uses native disclosure. Fonts and photographs are local, with no runtime external requests.
 
