@@ -59,6 +59,9 @@ func NewHandler(checkDatabase DatabaseCheck, catalogReader catalog.Reader, logge
 	}
 	if settings.authentication != nil {
 		registerAuthRoutes(router, settings.authentication, settings.authOptions)
+		if settings.cart != nil {
+			registerCartRoutes(router, settings.authentication, settings.authOptions, settings.cart)
+		}
 		if settings.adminCatalog != nil {
 			registerAdminCatalogRoutes(router, settings.authentication, settings.authOptions, settings.adminCatalog)
 			if settings.imageStore != nil {

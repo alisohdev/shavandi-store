@@ -1,4 +1,5 @@
 ---
+import { AddToCart } from "../../components/CustomerCart";
 import StoreLayout from "../../layouts/StoreLayout.astro";
 import {
   catalogOrigin,
@@ -54,6 +55,7 @@ const money = new Intl.NumberFormat("fa-IR");
               )}{" "}
               تومان
             </p>
+            <AddToCart product={product} client:load />
             <h2>رنگ و اندازه</h2>
             <ul>
               {product.variants.map((v) => (

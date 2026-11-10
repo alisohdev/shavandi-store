@@ -36,6 +36,7 @@ type AuthOptions struct {
 	CookieSecure   bool
 }
 type handlerOptions struct {
+	cart           Cart
 	authentication Authentication
 	authOptions    AuthOptions
 	adminCatalog   AdminCatalog

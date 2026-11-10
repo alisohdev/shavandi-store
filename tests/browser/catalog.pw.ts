@@ -18,7 +18,9 @@ test("public catalog renders API products, categories, pagination and variant pr
   await expect(
     page.getByRole("heading", { name: "پیراهن کاتالوگ" }),
   ).toBeVisible();
-  await expect(page.getByText(/آبی · M/)).toContainText("۱۶۰٬۰۰۰");
+  await expect(
+    page.getByRole("listitem").filter({ hasText: /آبی · M/ }),
+  ).toContainText("۱۶۰٬۰۰۰");
   await expect(
     page.getByText("ثبت سفارش و پرداخت آنلاین هنوز فعال نیست."),
   ).toBeVisible();

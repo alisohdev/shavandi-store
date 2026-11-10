@@ -35,7 +35,7 @@ function nullableText(value: unknown) {
   return value === null || text(value);
 }
 function price(value: unknown) {
-  return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
 }
 function optionalPrice(value: unknown) {
   return value === null || price(value);

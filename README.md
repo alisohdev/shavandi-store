@@ -85,3 +85,7 @@ See [the design and architecture brief](docs/architecture.md) for the rendering 
 ## Live catalog runtime
 
 Catalog routes now use the Go public API at request time. Build with `bun run build`, then start the Node runtime with `node dist/server/entry.mjs`. Set the server-only `CATALOG_API_ORIGIN` to the Go API origin (defaults to `http://127.0.0.1:8080`). Route `/api/*` to Go at the production reverse proxy, including uploaded image URLs; route frontend pages to Astro. Static-only deployment is no longer sufficient. See [public catalog handoff](docs/public-catalog-handoff.md) for behavior and verification limits.
+
+## Customer cart
+
+The signed-in account cart is at `/cart/`; product pages save selected variant IDs and absolute quantities to PostgreSQL. Apply migration `20261110120000` through the existing Goose workflow before starting the updated API. This cart recomputes catalog prices and does not reserve stock, create orders, or accept payment. The legacy `/checkout/` page remains a separate fixture demo. See [customer cart handoff](docs/customer-cart-handoff.md).

@@ -1,0 +1,14 @@
+---
+import StoreLayout from "../layouts/StoreLayout.astro";
+import CustomerCart from "../components/CustomerCart";
+---
+
+<StoreLayout title="سبد خرید | شواندی">
+  <div class="page-width checkout-page">
+    <div class="page-heading">
+      <h1>سبد خرید</h1>
+    </div>
+    <CustomerCart client:load />
+    <noscript>برای استفاده از سبد، جاوااسکریپت مرورگر را فعال کن.</noscript>
+  </div>
+</StoreLayout>

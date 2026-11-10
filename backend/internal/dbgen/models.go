@@ -51,6 +51,13 @@ type ShavandiAuthSession struct {
 	RevokedAt     pgtype.Timestamptz
 }
 
+type ShavandiCartLine struct {
+	UserID    pgtype.UUID
+	VariantID pgtype.UUID
+	Quantity  int32
+	UpdatedAt pgtype.Timestamptz
+}
+
 type ShavandiCategory struct {
 	ID           pgtype.UUID
 	Name         string
