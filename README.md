@@ -81,3 +81,7 @@ For Windows API setup, PostgreSQL migrations, sqlc generation, Go tests, and API
 The home page, navigation, collection cards, product cards, and content pages use Astro components. React hydrates only product controls, checkout, and the admin editor, one island on each relevant page. Navigation uses ordinary links; the mobile menu uses native disclosure. Fonts and photographs are local, with no runtime external requests.
 
 See [the design and architecture brief](docs/architecture.md) for the rendering comparison, data model, and future boundary; [asset credits](docs/assets.md) and the [asset manifest](docs/asset-manifest.json) record photo sources, verified facts, demo fields, rights, and every responsive derivative. Both Astro and React image renderers preserve the full sourced photo with `object-fit: contain`, real intrinsic dimensions, and local width-based `srcset`; no source photo is upscaled.
+
+## Live catalog runtime
+
+Catalog routes now use the Go public API at request time. Build with `bun run build`, then start the Node runtime with `node dist/server/entry.mjs`. Set the server-only `CATALOG_API_ORIGIN` to the Go API origin (defaults to `http://127.0.0.1:8080`). Route `/api/*` to Go at the production reverse proxy, including uploaded image URLs; route frontend pages to Astro. Static-only deployment is no longer sufficient. See [public catalog handoff](docs/public-catalog-handoff.md) for behavior and verification limits.

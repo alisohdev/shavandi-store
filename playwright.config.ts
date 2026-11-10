@@ -16,10 +16,18 @@ export default defineConfig({
     screenshot: "only-on-failure",
     trace: "retain-on-failure",
   },
-  webServer: {
-    command: "bun run dev -- --host 127.0.0.1 --port 4322",
-    url: "http://127.0.0.1:4322",
-    reuseExistingServer: !process.env.CI,
-    timeout: 30000,
-  },
+  webServer: [
+    {
+      command: "bun tests/support/public-api.mjs",
+      url: "http://127.0.0.1:8089/api/v1/categories",
+      reuseExistingServer: false,
+    },
+    {
+      env: { CATALOG_API_ORIGIN: "http://127.0.0.1:8089" },
+      command: "bun run dev -- --host 127.0.0.1 --port 4322",
+      url: "http://127.0.0.1:4322",
+      reuseExistingServer: false,
+      timeout: 30000,
+    },
+  ],
 });

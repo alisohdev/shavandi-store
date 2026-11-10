@@ -1,43 +1,15 @@
 ---
+import { loadPublicListing } from "../../lib/public-catalog";
 import StoreLayout from "../../layouts/StoreLayout.astro";
-import ProductCard from "../../components/ProductCard.astro";
-import { collections, products } from "../../data/catalog";
+import PublicCatalog from "../../components/PublicCatalog.astro";
+const listing = await loadPublicListing(
+  "",
+  Astro.url.searchParams.get("cursor") ?? "",
+);
+Astro.response.status = listing.status;
+Astro.response.headers.set("Cache-Control", "no-store");
 ---
 
-<StoreLayout title="همهٔ انتخاب‌ها | شواندی">
-  <div class="page-width catalog-page">
-    <div class="page-heading">
-      <p class="eyebrow">شواندی استور + شواندی اسپرت</p>
-      <h1>برای خانه، ورزش و هر روز</h1>
-      <p>
-        تنپوش‌ها و لباس‌های فوتبال با عکس و قیمت منبع؛ پوشاک زنانه با عکس و
-        اطلاعات موقت. بخش مردانه در حال آماده‌شدن است.
-      </p>
-    </div>
-    <nav class="collection-nav" aria-label="مجموعه‌ها">
-      <a href="/collections/" aria-current="page">
-        همهٔ انتخاب‌ها
-      </a>
-      {collections.map((collection) => (
-        <a href={`/collections/${collection.slug}/`}>{collection.name}</a>
-      ))}
-    </nav>
-    <div class="catalog-count">
-      <span>
-        {new Intl.NumberFormat("fa-IR").format(products.length)} انتخاب
-      </span>
-      <span>قیمت منبع یا نمونه با برچسب · موجودی نمایشی</span>
-    </div>
-    <div class="product-grid">
-      {[...products]
-        .sort(
-          (a, b) =>
-            Number(b.provenance.kind === "sourced") -
-            Number(a.provenance.kind === "sourced"),
-        )
-        .map((product) => (
-          <ProductCard product={product} />
-        ))}
-    </div>
-  </div>
+<StoreLayout title="کاتالوگ شواندی">
+  <PublicCatalog listing={listing} />
 </StoreLayout>

@@ -1,0 +1,64 @@
+---
+import type { loadPublicListing } from "../lib/public-catalog";
+import PublicProductCard from "./PublicProductCard.astro";
+interface Props {
+  category?: string;
+  heading?: string;
+  listing: Awaited<ReturnType<typeof loadPublicListing>>;
+}
+const { category = "", heading = "همهٔ انتخاب‌ها", listing } = Astro.props;
+const { categories, products, nextCursor, status } = listing;
+const title = categories.find((c) => c.slug === category)?.name ?? heading;
+---
+
+<div class="page-width catalog-page">
+  <div class="page-heading">
+    <p class="eyebrow">شواندی استور + شواندی اسپرت</p>
+    <h1>{title}</h1>
+  </div>
+  <nav class="collection-nav" aria-label="مجموعه‌ها">
+    <a href="/collections/">همهٔ انتخاب‌ها</a>
+    {categories.map((c) => (
+      <a
+        href={`/collections/${encodeURIComponent(c.slug)}/`}
+        aria-current={c.slug === category ? "page" : undefined}
+      >
+        {c.name}
+      </a>
+    ))}
+  </nav>
+  {status !== 200 ? (
+    <div class="empty-collection" role="alert">
+      <h2>
+        {status === 404
+          ? "این مجموعه پیدا نشد."
+          : status === 400
+            ? "نشانی صفحه معتبر نیست."
+            : "دریافت محصولات ممکن نشد."}
+      </h2>
+      <a class="text-link" href={Astro.url.pathname}>
+        تلاش دوباره
+      </a>
+    </div>
+  ) : (
+    <>
+      {products.length === 0 ? (
+        <p class="empty-collection">هنوز محصولی در این بخش منتشر نشده است.</p>
+      ) : (
+        <div class="product-grid">
+          {products.map((product) => (
+            <PublicProductCard product={product} />
+          ))}
+        </div>
+      )}
+      {nextCursor && (
+        <a
+          class="primary-link"
+          href={`?${new URLSearchParams({ cursor: nextCursor })}`}
+        >
+          محصولات بیشتر ←
+        </a>
+      )}
+    </>
+  )}
+</div>

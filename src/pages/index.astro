@@ -1,10 +1,11 @@
 ---
+import { loadPublicListing } from "../lib/public-catalog";
 import StoreLayout from "../layouts/StoreLayout.astro";
-import ProductCard from "../components/ProductCard.astro";
+import PublicCatalog from "../components/PublicCatalog.astro";
 import CollectionCard from "../components/CollectionCard.astro";
 import CatalogImage from "../components/CatalogImage.astro";
 import Icon from "../components/Icon.astro";
-import { homeCollections, products, realProducts } from "../data/catalog";
+import { homeCollections, realProducts } from "../data/catalog";
 
 const shark = realProducts.find(
   (product) => product.slug === "shark-wearable-blanket",
@@ -14,13 +15,12 @@ const madrid = realProducts.find(
 );
 if (!shark || !madrid)
   throw new Error("The home page source products are missing");
-const blankets = realProducts.filter(
-  (product) => product.category === "پتو تنپوش",
+const listing = await loadPublicListing(
+  "",
+  Astro.url.searchParams.get("cursor") ?? "",
 );
-const sports = realProducts.filter((product) => product.category === "ورزشی");
-const everyday = products.filter((product) =>
-  ["sh-101", "sh-102"].includes(product.id),
-);
+Astro.response.status = listing.status;
+Astro.response.headers.set("Cache-Control", "no-store");
 ---
 
 <StoreLayout>
@@ -51,7 +51,7 @@ const everyday = products.filter((product) =>
     </div>
     <a
       class="hero-photo"
-      href={`/products/${shark.slug}/`}
+      href="/collections/wearable-blankets/"
       aria-label="دیدن پتو کوسه‌ای"
     >
       <CatalogImage
@@ -84,79 +84,7 @@ const everyday = products.filter((product) =>
       ))}
     </div>
   </section>
-  <section
-    class="section-space page-width"
-    id="new-arrivals"
-    aria-labelledby="cozy-heading"
-  >
-    <div class="section-heading">
-      <div>
-        <p class="eyebrow">از شواندی استور</p>
-        <h2 id="cozy-heading">برای وقتِ خانه</h2>
-      </div>
-      <a class="text-link" href="/collections/wearable-blankets/">
-        همهٔ تنپوش‌ها <Icon name="arrow-left" />
-      </a>
-    </div>
-    <div class="product-grid">
-      {blankets.map((product) => (
-        <ProductCard product={product} />
-      ))}
-    </div>
-    <p class="catalog-disclaimer">
-      عکس، نام و قیمت از منبع، بررسی‌شده در ۱۱ آبان ۱۴۰۵. موجودی و تسویه
-      نمایشی‌اند؛ اندازهٔ تأییدشده در جزئیات هر محصول آمده است.
-    </p>
-  </section>
-  <section class="sports-section section-space" aria-labelledby="sport-heading">
-    <div class="page-width">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">از شواندی اسپرت</p>
-          <h2 id="sport-heading">به رنگِ تیم تو</h2>
-        </div>
-        <a class="text-link" href="/collections/football/">
-          دیدن مجموعهٔ ورزشی <Icon name="arrow-left" />
-        </a>
-      </div>
-      <p class="section-context">
-        رئال مادرید، فرانسه، پرتغال و آرژانتین. نسخهٔ هواداری تأیید نشده؛ عنوان
-        «پلیری» فرانسه از نام منبع است.
-      </p>
-      <div class="product-grid">
-        {sports.map((product) => (
-          <ProductCard product={product} />
-        ))}
-      </div>
-      <p class="catalog-disclaimer">
-        قیمت‌های منبع ثبت شده‌اند؛ موجودی، سبد و تسویه در این پیش‌نمایش
-        نمونه‌اند.
-      </p>
-    </div>
-  </section>
-  <section
-    class="section-space page-width everyday-preview"
-    aria-labelledby="everyday-heading"
-  >
-    <div class="section-heading">
-      <div>
-        <p class="eyebrow">بخش موقتِ پیش‌نمایش</p>
-        <h2 id="everyday-heading">انتخاب‌های روزمره</h2>
-      </div>
-      <a class="text-link" href="/collections/women/">
-        پوشاک زنانه <Icon name="arrow-left" />
-      </a>
-    </div>
-    <p class="section-context">
-      این دو محصول با عکس‌های موقت Unsplash نمایش داده می‌شوند. نام، قیمت و همهٔ
-      مشخصات آن‌ها نمونه‌اند.
-    </p>
-    <div class="product-grid temporary-grid">
-      {everyday.map((product) => (
-        <ProductCard product={product} />
-      ))}
-    </div>
-  </section>
+  <PublicCatalog listing={listing} heading="تازه‌های شواندی" />
   <section class="story-section page-width" aria-labelledby="story-heading">
     <p class="eyebrow">دربارهٔ این شواندی</p>
     <h2 id="story-heading">

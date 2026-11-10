@@ -1,77 +1,15 @@
 ---
-import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+import { loadPublicListing } from "../../lib/public-catalog";
 import StoreLayout from "../../layouts/StoreLayout.astro";
-import ProductCard from "../../components/ProductCard.astro";
-import CatalogImage from "../../components/CatalogImage.astro";
-import { collections, products } from "../../data/catalog";
-export const getStaticPaths = (() =>
-  collections.map((collection) => ({
-    params: { slug: collection.slug },
-    props: { collection },
-  }))) satisfies GetStaticPaths;
-type Props = InferGetStaticPropsType<typeof getStaticPaths>;
-const { collection } = Astro.props;
-const selectedProducts = products.filter((product) =>
-  collection.productIds.includes(product.id),
+import PublicCatalog from "../../components/PublicCatalog.astro";
+const listing = await loadPublicListing(
+  Astro.params.slug ?? "",
+  Astro.url.searchParams.get("cursor") ?? "",
 );
+Astro.response.status = listing.status;
+Astro.response.headers.set("Cache-Control", "no-store");
 ---
 
-<StoreLayout
-  title={`${collection.name} | شواندی`}
-  description={collection.description}
->
-  <div class="page-width catalog-page">
-    <nav class="breadcrumbs" aria-label="مسیر صفحه">
-      <a href="/">شواندی</a>
-      <span aria-hidden="true">/</span>
-      <a href="/collections/">مجموعه‌ها</a>
-      <span aria-hidden="true">/</span>
-      <span aria-current="page">{collection.name}</span>
-    </nav>
-    <div class="collection-intro">
-      <div class="page-heading">
-        <p class="eyebrow">{collection.eyebrow}</p>
-        <h1>{collection.name}</h1>
-        <p>{collection.description}</p>
-      </div>
-      <CatalogImage
-        image={collection.image}
-        sizes="(max-width: 540px) 92vw, 45vw"
-        eager
-      />
-    </div>
-    <nav class="collection-nav" aria-label="مجموعه‌ها">
-      <a href="/collections/">همهٔ انتخاب‌ها</a>
-      {collections.map((item) => (
-        <a
-          href={`/collections/${item.slug}/`}
-          aria-current={item.slug === collection.slug ? "page" : undefined}
-        >
-          {item.name}
-        </a>
-      ))}
-    </nav>
-    <div class="catalog-count">
-      <span>
-        {new Intl.NumberFormat("fa-IR").format(selectedProducts.length)} انتخاب
-      </span>
-      <span>{collection.note}</span>
-    </div>
-    {selectedProducts.length === 0 && (
-      <div class="empty-collection">
-        <p>
-          این بخش هنوز محصول تأییدشده‌ای ندارد. تصویرسازی مردانه موقت است؛ با
-          اضافه‌شدن اطلاعات واقعی، این مجموعه کامل می‌شود.
-        </p>
-        <a class="text-link" href="/collections/">
-          دیدن مجموعه‌های دیگر ←
-        </a>
-      </div>
-    )}
-    <div class="product-grid">
-      {selectedProducts.map((product) => (
-        <ProductCard product={product} />
-      ))}
-    </div>
-  </div>
+<StoreLayout title="کاتالوگ شواندی">
+  <PublicCatalog listing={listing} category={Astro.params.slug ?? ""} />
 </StoreLayout>

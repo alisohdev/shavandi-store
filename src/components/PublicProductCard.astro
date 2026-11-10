@@ -1,0 +1,38 @@
+---
+import type { PublicProduct } from "../lib/public-catalog";
+interface Props {
+  product: PublicProduct;
+}
+const { product } = Astro.props;
+const image = [...product.images].sort(
+  (a, b) => a.sort_order - b.sort_order,
+)[0];
+const money = new Intl.NumberFormat("fa-IR");
+---
+
+<article class="product-card">
+  <a
+    class="product-photo"
+    href={`/products/${encodeURIComponent(product.slug)}/`}
+    aria-label={`مشاهدهٔ ${product.name}`}
+  >
+    {image && (
+      <img
+        src={image.asset_ref}
+        alt={image.alt_text ?? product.name}
+        loading="lazy"
+      />
+    )}
+  </a>
+  <div class="product-meta">
+    <h3>
+      <a href={`/products/${encodeURIComponent(product.slug)}/`}>
+        {product.name}
+      </a>
+    </h3>
+    <p>
+      {money.format(product.sale_price_toman ?? product.regular_price_toman)}{" "}
+      تومان
+    </p>
+  </div>
+</article>

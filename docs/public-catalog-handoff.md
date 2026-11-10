@@ -1,0 +1,9 @@
+# Public catalog rendering
+
+The homepage product section, collection listings and product details now read the Go public API at request time. Draft/hidden products are excluded by that API. A missing product/category returns HTTP 404, invalid pagination returns 400, and service failures return 503 with retry navigation. Empty categories show an empty state. No fixture product fallback is used. The homepage retains its editorial photography and collection links; catalog categories and product information come from the database.
+
+Astro now builds a Node standalone server with @astrojs/node. After bun run build, run node dist/server/entry.mjs. Set CATALOG_API_ORIGIN to the private Go API origin (default http://127.0.0.1:8080). This is server-only configuration; no database credentials or administrator cookies are sent with public catalog reads. Reads have a five-second timeout, reject redirects and use no-store. Configure the production reverse proxy to route /api/* to the Go service and other paths to Astro, so uploaded image references and authentication retain the same origin. The Vite API proxy remains development-only. Static-file-only hosting no longer serves the catalog correctly.
+
+Variant prices and images are rendered directly from the public response. Inventory, ordering, cart persistence and payments are not implemented; the product page explicitly says ordering is unavailable. The old fixture-based checkout remains a labeled demo and is not connected to live product data.
+
+Playwright starts an isolated fixture API on 8089 and Astro on 4322. Public tests cover API-rendered listings, category navigation, cursor pagination, variant prices, missing/hidden products, unknown/empty categories and API failure. This proves server rendering against the HTTP contract, not a provisioned business catalog. Backend PostgreSQL publication and visibility tests remain the persistence verification.

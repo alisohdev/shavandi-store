@@ -1,59 +1,87 @@
 ---
-import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
 import StoreLayout from "../../layouts/StoreLayout.astro";
-import ProductPicker from "../../components/ProductPicker";
-import ProductCard from "../../components/ProductCard.astro";
-import { products } from "../../data/catalog";
-
-export const getStaticPaths = (() =>
-  products.map((product) => ({
-    params: { slug: product.slug },
-    props: { product },
-  }))) satisfies GetStaticPaths;
-
-type Props = InferGetStaticPropsType<typeof getStaticPaths>;
-const { product } = Astro.props;
-const related = products
-  .filter(
-    (item) => item.id !== product.id && item.category === product.category,
-  )
-  .slice(0, 4);
+import {
+  catalogOrigin,
+  createPublicCatalog,
+  CatalogRequestError,
+  type PublicProduct,
+} from "../../lib/public-catalog";
+let product: PublicProduct | null = null;
+let status = 200;
+try {
+  product = await createPublicCatalog(catalogOrigin()).product(
+    Astro.params.slug ?? "",
+  );
+} catch (error) {
+  status =
+    error instanceof CatalogRequestError && error.status === 404 ? 404 : 503;
+  Astro.response.status = status;
+}
+Astro.response.headers.set("Cache-Control", "no-store");
+const money = new Intl.NumberFormat("fa-IR");
 ---
 
 <StoreLayout
-  title={`${product.name} | شواندی`}
-  description={product.description}
+  title={`${product?.name ?? (status === 404 ? "محصول پیدا نشد" : "دریافت محصول ممکن نشد")} | شواندی`}
+  description={product?.description ?? "کاتالوگ شواندی"}
 >
   <div class="page-width product-page">
     <nav class="breadcrumbs" aria-label="مسیر صفحه">
       <a href="/">شواندی</a>
-      <span aria-hidden="true">/</span>
+      <span>/</span>
       <a href="/collections/">همهٔ انتخاب‌ها</a>
-      <span aria-hidden="true">/</span>
-      <span aria-current="page">{product.name}</span>
     </nav>
-    <ProductPicker product={product} client:load />
-    <noscript>
-      <p class="purchase-notice">
-        برای انتخاب رنگ و اندازه و افزودن به سبد نمایشی، جاوااسکریپت مرورگر را
-        فعال کن. اطلاعات و تصویر محصول بدون آن هم قابل مشاهده‌اند.
-      </p>
-    </noscript>
-    <section
-      class="section-space related-section"
-      aria-labelledby="related-heading"
-    >
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">از همین مجموعه</p>
-          <h2 id="related-heading">انتخاب‌های دیگر</h2>
+    {product ? (
+      <>
+        <div class="admin-edit-grid">
+          <div class="admin-live-preview">
+            {[...product.images]
+              .sort((a, b) => a.sort_order - b.sort_order)
+              .map((image, index) => (
+                <img
+                  src={image.asset_ref}
+                  alt={image.alt_text ?? product!.name}
+                  loading={index === 0 ? "eager" : "lazy"}
+                />
+              ))}
+          </div>
+          <section>
+            <h1>{product.name}</h1>
+            <p>{product.description}</p>
+            <p>
+              {money.format(
+                product.sale_price_toman ?? product.regular_price_toman,
+              )}{" "}
+              تومان
+            </p>
+            <h2>رنگ و اندازه</h2>
+            <ul>
+              {product.variants.map((v) => (
+                <li>
+                  {v.color ?? "بدون رنگ"} · {v.size ?? "بدون اندازه"} —{" "}
+                  {money.format(v.price.sale_toman ?? v.price.regular_toman)}{" "}
+                  تومان
+                </li>
+              ))}
+            </ul>
+            <p class="purchase-notice">
+              ثبت سفارش و پرداخت آنلاین هنوز فعال نیست.
+            </p>
+          </section>
         </div>
-      </div>
-      <div class="product-grid">
-        {related.map((item) => (
-          <ProductCard product={item} />
-        ))}
-      </div>
-    </section>
+      </>
+    ) : (
+      <section role="alert">
+        <h1>
+          {status === 404 ? "این محصول پیدا نشد." : "دریافت محصول ممکن نشد."}
+        </h1>
+        <a
+          class="text-link"
+          href={status === 404 ? "/collections/" : Astro.url.pathname}
+        >
+          {status === 404 ? "دیدن محصولات" : "تلاش دوباره"}
+        </a>
+      </section>
+    )}
   </div>
 </StoreLayout>
