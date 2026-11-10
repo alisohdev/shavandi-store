@@ -136,3 +136,42 @@ export async function listAdminCategories(
     throw new Error("فهرست دسته‌بندی‌ها از سرور قابل خواندن نیست.");
   return value.categories as AdminCategory[];
 }
+
+export async function mutateAdminProduct(
+  path: string,
+  method: "POST" | "PATCH" | "DELETE",
+  body: object | FormData,
+): Promise<AdminProduct> {
+  const csrfResponse = await fetch("/api/v1/auth/csrf", {
+    credentials: "include",
+    cache: "no-store",
+  });
+  if (!csrfResponse.ok)
+    throw new AdminCatalogError(csrfResponse.status, "csrf_unavailable");
+  const csrf: unknown = await csrfResponse.json();
+  if (!record(csrf) || typeof csrf.csrf_token !== "string")
+    throw new Error("Invalid CSRF response");
+  const multipart = body instanceof FormData;
+  const response = await fetch(`/api/v1/admin/products${path}`, {
+    method,
+    credentials: "include",
+    cache: "no-store",
+    headers: {
+      "X-CSRF-Token": csrf.csrf_token,
+      ...(multipart ? {} : { "Content-Type": "application/json" }),
+    },
+    body: multipart ? body : JSON.stringify(body),
+  });
+  const value: unknown = await response.json().catch(() => null);
+  if (!response.ok)
+    throw new AdminCatalogError(
+      response.status,
+      record(value) &&
+        record(value.error) &&
+        typeof value.error.code === "string"
+        ? value.error.code
+        : "unavailable",
+    );
+  if (!record(value)) throw new Error("Invalid product response");
+  return parseProduct(value.product);
+}

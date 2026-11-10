@@ -1,3 +1,4 @@
+import AdminProductEditor from "./AdminProductEditor";
 import { useEffect, useMemo, useState } from "react";
 import {
   AdminCatalogError,
@@ -34,6 +35,7 @@ export default function AdminCatalogRead({ onUnauthorized }: Props) {
   const [detail, setDetail] = useState<AdminProduct | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [error, setError] = useState("");
+  const [creating, setCreating] = useState(false);
   const [retry, setRetry] = useState(0);
 
   useEffect(() => {
@@ -121,9 +123,29 @@ export default function AdminCatalogRead({ onUnauthorized }: Props) {
   return (
     <div className="admin-editor-preview">
       <p className="preview-notice admin-scope-note">
-        اطلاعات از کاتالوگ PostgreSQL خوانده شده است. این صفحه فعلاً فقط برای
-        مشاهده است؛ هیچ تغییری ذخیره نمی‌شود.
+        تغییرات پس از ذخیره در کاتالوگ ثبت می‌شوند. پیش‌نویس‌ها تا زمان انتشار
+        در دسترس مشتری نیستند.
       </p>
+      <button
+        type="button"
+        className="preview-secondary"
+        onClick={() => setCreating((value) => !value)}
+      >
+        {creating ? "بستن محصول جدید" : "محصول جدید"}
+      </button>
+      {creating && (
+        <AdminProductEditor
+          product={null}
+          categories={categories}
+          onUnauthorized={onUnauthorized}
+          onSaved={(saved) => {
+            setCreating(false);
+            setProducts((items) => [saved, ...(items ?? [])]);
+            setSelectedID(saved.ID);
+            setDetail(saved);
+          }}
+        />
+      )}
       <div className="admin-metrics">
         <div>
           <span>محصول‌ها</span>
@@ -226,80 +248,99 @@ export default function AdminCatalogRead({ onUnauthorized }: Props) {
               </div>
             </div>
             {detail ? (
-              <div className="admin-edit-grid">
-                <div className="admin-edit-form">
-                  <p>
-                    <strong>شناسه:</strong> <bdi>{detail.ID}</bdi>
-                  </p>
-                  <p>
-                    <strong>نسخه:</strong> {money.format(detail.Version)}
-                  </p>
-                  <p>
-                    <strong>نشانی:</strong> <bdi>{detail.Slug}</bdi>
-                  </p>
-                  <p>
-                    <strong>دسته‌بندی:</strong>{" "}
-                    {categoryByID.get(detail.PrimaryCategory) ??
-                      "دسته‌بندی نامشخص"}
-                  </p>
-                  <p>
-                    <strong>قیمت پایه:</strong>{" "}
-                    {money.format(detail.RegularPriceToman)} تومان
-                  </p>
-                  {detail.SalePriceToman !== null && (
+              <div>
+                <AdminProductEditor
+                  key={`${detail.ID}:${detail.Version}`}
+                  product={detail}
+                  categories={categories}
+                  onUnauthorized={onUnauthorized}
+                  onSaved={(saved) => {
+                    setDetail(saved);
+                    setProducts(
+                      (items) =>
+                        items?.map((item) =>
+                          item.ID === saved.ID ? saved : item,
+                        ) ?? null,
+                    );
+                  }}
+                />
+                <div className="admin-edit-grid">
+                  <div className="admin-edit-form">
                     <p>
-                      <strong>قیمت فروش ویژه:</strong>{" "}
-                      {money.format(detail.SalePriceToman)} تومان
+                      <strong>شناسه:</strong> <bdi>{detail.ID}</bdi>
                     </p>
-                  )}
-                  <p>
-                    <strong>وضعیت:</strong>{" "}
-                    {stateLabel[detail.PublicationState]}
-                  </p>
-                  <p>{detail.Description || "توضیحی ثبت نشده است."}</p>
-                  <h3>ترکیب‌ها</h3>
-                  {detail.Variants.length ? (
-                    detail.Variants.map((variant) => {
-                      const price = effectiveVariantPrice(detail, variant);
-                      return (
-                        <p key={variant.ID}>
-                          {variant.Size ?? "بدون اندازه"} ·{" "}
-                          {variant.Color ?? "بدون رنگ"} —{" "}
-                          {variant.Active ? "فعال" : "غیرفعال"}
-                          {` · قیمت مؤثر: ${money.format(price.regular)} تومان`}
-                          {price.sale !== null
-                            ? ` · فروش ویژه: ${money.format(price.sale)} تومان`
-                            : ""}
-                          {variant.RegularPriceOverrideToman !== null
-                            ? ` · قیمت پایهٔ اختصاصی: ${money.format(variant.RegularPriceOverrideToman)} تومان`
-                            : ""}
-                          {variant.SalePriceOverrideToman !== null
-                            ? ` · فروش ویژهٔ اختصاصی: ${money.format(variant.SalePriceOverrideToman)} تومان`
-                            : ""}
-                        </p>
-                      );
-                    })
-                  ) : (
-                    <p>ترکیبی ثبت نشده است.</p>
-                  )}
+                    <p>
+                      <strong>نسخه:</strong> {money.format(detail.Version)}
+                    </p>
+                    <p>
+                      <strong>نشانی:</strong> <bdi>{detail.Slug}</bdi>
+                    </p>
+                    <p>
+                      <strong>دسته‌بندی:</strong>{" "}
+                      {categoryByID.get(detail.PrimaryCategory) ??
+                        "دسته‌بندی نامشخص"}
+                    </p>
+                    <p>
+                      <strong>قیمت پایه:</strong>{" "}
+                      {money.format(detail.RegularPriceToman)} تومان
+                    </p>
+                    {detail.SalePriceToman !== null && (
+                      <p>
+                        <strong>قیمت فروش ویژه:</strong>{" "}
+                        {money.format(detail.SalePriceToman)} تومان
+                      </p>
+                    )}
+                    <p>
+                      <strong>وضعیت:</strong>{" "}
+                      {stateLabel[detail.PublicationState]}
+                    </p>
+                    <p>{detail.Description || "توضیحی ثبت نشده است."}</p>
+                    <h3>ترکیب‌ها</h3>
+                    {detail.Variants.length ? (
+                      detail.Variants.map((variant) => {
+                        const price = effectiveVariantPrice(detail, variant);
+                        return (
+                          <p key={variant.ID}>
+                            {variant.Size ?? "بدون اندازه"} ·{" "}
+                            {variant.Color ?? "بدون رنگ"} —{" "}
+                            {variant.Active ? "فعال" : "غیرفعال"}
+                            {` · قیمت مؤثر: ${money.format(price.regular)} تومان`}
+                            {price.sale !== null
+                              ? ` · فروش ویژه: ${money.format(price.sale)} تومان`
+                              : ""}
+                            {variant.RegularPriceOverrideToman !== null
+                              ? ` · قیمت پایهٔ اختصاصی: ${money.format(variant.RegularPriceOverrideToman)} تومان`
+                              : ""}
+                            {variant.SalePriceOverrideToman !== null
+                              ? ` · فروش ویژهٔ اختصاصی: ${money.format(variant.SalePriceOverrideToman)} تومان`
+                              : ""}
+                          </p>
+                        );
+                      })
+                    ) : (
+                      <p>ترکیبی ثبت نشده است.</p>
+                    )}
+                  </div>
+                  <aside className="admin-live-preview">
+                    <h3>تصاویر</h3>
+                    {detail.Images.length ? (
+                      detail.Images.map((image) => (
+                        <figure key={image.ID}>
+                          <img
+                            src={image.AssetRef}
+                            alt={image.AltText ?? detail.Name}
+                            loading="lazy"
+                          />
+                          <figcaption>
+                            {image.AltText ?? detail.Name}
+                          </figcaption>
+                        </figure>
+                      ))
+                    ) : (
+                      <p>تصویری ثبت نشده است.</p>
+                    )}
+                  </aside>
                 </div>
-                <aside className="admin-live-preview">
-                  <h3>تصاویر</h3>
-                  {detail.Images.length ? (
-                    detail.Images.map((image) => (
-                      <figure key={image.ID}>
-                        <img
-                          src={image.AssetRef}
-                          alt={image.AltText ?? detail.Name}
-                          loading="lazy"
-                        />
-                        <figcaption>{image.AltText ?? detail.Name}</figcaption>
-                      </figure>
-                    ))
-                  ) : (
-                    <p>تصویری ثبت نشده است.</p>
-                  )}
-                </aside>
               </div>
             ) : null}
           </section>

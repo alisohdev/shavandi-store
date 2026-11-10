@@ -1859,3 +1859,42 @@ summary:focus-visible,
     padding-inline: 14px;
   }
 }
+.admin-editor-section fieldset {
+  min-inline-size: 0;
+  border: 0;
+  padding: 0;
+  margin: 1.5rem 0;
+}
+.admin-editor-section form,
+.admin-editor-section fieldset {
+  display: grid;
+  gap: 1rem;
+}
+.admin-editor-section label {
+  display: grid;
+  gap: 0.5rem;
+}
+.admin-editor-section input,
+.admin-editor-section select,
+.admin-editor-section textarea {
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-inline-size: 0;
+  padding: 0.75rem;
+  font: inherit;
+  color: inherit;
+  background: var(--paper, #fff);
+  border: 1px solid currentColor;
+}
+.admin-editor-section textarea {
+  min-block-size: 7rem;
+  resize: vertical;
+}
+.admin-editor-section button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.admin-editor-section li {
+  margin-block: 0.75rem;
+  overflow-wrap: anywhere;
+}

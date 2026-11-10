@@ -98,6 +98,21 @@ async function stubAuth(page: Page, initialRole: Role | null = null) {
       await route.fulfill({ status: 404 });
     }
   });
+  await page.route("**/api/v1/admin/**", async (route) => {
+    if (backend.role !== "admin") {
+      await route.fulfill({
+        status: backend.role ? 403 : 401,
+        json: { error: { code: "authentication_required" } },
+      });
+      return;
+    }
+    const path = new URL(route.request().url()).pathname;
+    await route.fulfill({
+      json: path.endsWith("/categories")
+        ? { categories: [] }
+        : { products: [] },
+    });
+  });
   return backend;
 }
 
@@ -226,7 +241,7 @@ test("rate limiting disables a new request until Retry-After elapses", async ({
   await expect(page.getByLabel("کد ورود ۶ رقمی")).toBeVisible();
 });
 
-test("admin editor stays gated through password and SMS and is hidden after logout", async ({
+test("admin catalog stays gated through password and SMS and is hidden after logout", async ({
   page,
 }) => {
   const backend = await stubAuth(page);
@@ -234,7 +249,9 @@ test("admin editor stays gated through password and SMS and is hidden after logo
   await expect(
     page.getByRole("heading", { name: "ورود به مدیریت", exact: true }),
   ).toBeVisible();
-  await expect(page.getByLabel("انتخاب محصول")).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "هنوز محصولی ثبت نشده است." }),
+  ).toHaveCount(0);
   await page.getByLabel("شمارهٔ همراه", { exact: true }).fill("09123456789");
   await page
     .getByLabel("رمز عبور مدیر", { exact: true })
@@ -246,46 +263,60 @@ test("admin editor stays gated through password and SMS and is hidden after logo
     .fill("browser-password");
   await page.getByRole("button", { name: "دریافت کد ورود" }).click();
   await expect(page.getByLabel("کد ورود ۶ رقمی")).toBeVisible();
-  await expect(page.getByLabel("انتخاب محصول")).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "هنوز محصولی ثبت نشده است." }),
+  ).toHaveCount(0);
   await page.screenshot({
     path: "output/playwright/auth-admin-360.png",
     fullPage: true,
   });
   await page.getByLabel("کد ورود ۶ رقمی").fill("123456");
   await page.getByRole("button", { name: "تأیید و ورود" }).click();
-  await expect(page.getByLabel("انتخاب محصول")).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "یک تغییر، یک نگاه تازه" }),
+    page.getByRole("heading", { name: "هنوز محصولی ثبت نشده است." }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "خوش آمدی، مدیر شواندی" }),
   ).toBeVisible();
   await expectNoOverflow(page);
   await page.reload();
-  await expect(page.getByLabel("انتخاب محصول")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "هنوز محصولی ثبت نشده است." }),
+  ).toBeVisible();
   await page.getByRole("button", { name: "خروج از حساب" }).click();
-  await expect(page.getByLabel("انتخاب محصول")).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "هنوز محصولی ثبت نشده است." }),
+  ).toHaveCount(0);
   await expect(page.getByLabel("رمز عبور مدیر", { exact: true })).toBeVisible();
   expect(backend.role).toBeNull();
 });
 
-test("a customer session cannot mount the admin editor", async ({ page }) => {
+test("a customer session cannot mount the admin catalog", async ({ page }) => {
   await stubAuth(page, "customer");
   await page.goto("/admin/");
   await expect(
     page.getByRole("heading", { name: "ورود مدیر لازم است" }),
   ).toBeVisible();
-  await expect(page.getByLabel("انتخاب محصول")).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "هنوز محصولی ثبت نشده است." }),
+  ).toHaveCount(0);
   await expectNoOverflow(page);
 });
 
-test("an expired admin session removes the editor and asks for a new login", async ({
+test("an expired admin session removes the catalog and asks for a new login", async ({
   page,
 }) => {
   await page.clock.install();
   const backend = await stubAuth(page, "admin");
   await page.goto("/admin/");
-  await expect(page.getByLabel("انتخاب محصول")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "هنوز محصولی ثبت نشده است." }),
+  ).toBeVisible();
   backend.role = null;
   await page.clock.fastForward(3601000);
-  await expect(page.getByLabel("انتخاب محصول")).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "هنوز محصولی ثبت نشده است." }),
+  ).toHaveCount(0);
   await expect(
     page.getByText("زمان ورودت تمام شده است. دوباره وارد شو."),
   ).toBeVisible();
@@ -322,9 +353,115 @@ test("unavailable session check fails closed with a retry", async ({
   await expect(
     page.getByRole("heading", { name: "بررسی ورود ممکن نشد" }),
   ).toBeVisible();
-  await expect(page.getByLabel("انتخاب محصول")).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "هنوز محصولی ثبت نشده است." }),
+  ).toHaveCount(0);
   await expect(page.getByRole("button", { name: "تلاش دوباره" })).toBeVisible();
   unavailable = false;
   await page.getByRole("button", { name: "تلاش دوباره" }).click();
   await expect(page.getByLabel("رمز عبور مدیر", { exact: true })).toBeVisible();
+});
+
+test("admin saves a product, handles a conflict, and publishes the fresh version", async ({
+  page,
+}) => {
+  await stubAuth(page, "admin");
+  let product = {
+    ID: "product-1",
+    Slug: "shirt",
+    Name: "پیراهن",
+    Description: "توضیحات محصول",
+    PrimaryCategory: "category-1",
+    RegularPriceToman: 1000,
+    SalePriceToman: null,
+    PublicationState: "draft",
+    Version: 1,
+    Variants: [],
+    Images: [],
+  };
+  let conflict = false;
+  await page.route("**/api/v1/admin/**", async (route) => {
+    const request = route.request();
+    const path = new URL(request.url()).pathname;
+    if (path.endsWith("/categories")) {
+      await route.fulfill({
+        json: {
+          categories: [
+            {
+              ID: "category-1",
+              Name: "پوشاک",
+              Slug: "clothing",
+              Active: true,
+              ParentID: null,
+              DisplayOrder: 0,
+            },
+          ],
+        },
+      });
+      return;
+    }
+    if (request.method() === "GET") {
+      await route.fulfill({
+        json: path.endsWith("/products")
+          ? { products: [product] }
+          : { product },
+      });
+      return;
+    }
+    expect(request.headers()["x-csrf-token"]).toBe("browser-csrf");
+    const body = request.postDataJSON();
+    expect(body.version).toBe(product.Version);
+    if (conflict) {
+      conflict = false;
+      product = { ...product, Version: product.Version + 1 };
+      await route.fulfill({
+        status: 409,
+        json: { error: { code: "version_conflict" } },
+      });
+      return;
+    }
+    product = {
+      ...product,
+      Name: body.name ?? product.Name,
+      Version: product.Version + 1,
+      PublicationState: path.endsWith("/publish")
+        ? "published"
+        : product.PublicationState,
+    };
+    await route.fulfill({ json: { product } });
+  });
+  await page.goto("/admin/");
+  await page.getByLabel("نام محصول", { exact: true }).fill("پیراهن تازه");
+  await page
+    .getByRole("button", { name: "ذخیره تغییرات", exact: true })
+    .click();
+  await expect(page.getByLabel("نام محصول", { exact: true })).toHaveValue(
+    "پیراهن تازه",
+  );
+  conflict = true;
+  await page.getByLabel("نام محصول", { exact: true }).fill("تغییر هم‌زمان");
+  await page
+    .getByRole("button", { name: "ذخیره تغییرات", exact: true })
+    .click();
+  await expect(page.getByRole("status")).toContainText(
+    "نسخهٔ محصول تغییر کرده است",
+  );
+  await expect(page.getByLabel("نام محصول", { exact: true })).toHaveValue(
+    "تغییر هم‌زمان",
+  );
+  await page
+    .getByRole("button", { name: "دریافت نسخهٔ تازه", exact: true })
+    .click();
+  await expect(page.getByLabel("نام محصول", { exact: true })).toHaveValue(
+    "پیراهن تازه",
+  );
+  await page.getByRole("button", { name: "انتشار محصول", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "پنهان کردن محصول", exact: true }),
+  ).toBeVisible();
+  await expectNoOverflow(page);
+  await page.screenshot({
+    path: "output/playwright/admin-editor-360.png",
+    fullPage: true,
+  });
 });
