@@ -51,7 +51,7 @@ WHERE product.publication_state = 'published'
   AND current_slug.slug = sqlc.arg(slug)::text;
 
 -- name: ListPublicVariants :many
-SELECT id, product_id, size, color, regular_price_override_toman, sale_price_override_toman
+SELECT id, product_id, size, color, regular_price_override_toman, sale_price_override_toman, stock_on_hand
 FROM shavandi.variants
 WHERE product_id = ANY(sqlc.arg(product_ids)::uuid[])
   AND active

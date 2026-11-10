@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type SubmitEvent } from "react";
 import type { PublicProduct } from "../lib/public-catalog";
 
 type CartLine = {
+  available_quantity: number;
   variant_id: string;
   product_slug: string;
   name: string;
@@ -39,6 +40,9 @@ function validLine(value: unknown) {
     value.quantity >= 1 &&
     value.quantity <= 9 &&
     typeof value.available === "boolean" &&
+    typeof value.available_quantity === "number" &&
+    Number.isSafeInteger(value.available_quantity) &&
+    value.available_quantity >= 0 &&
     (value.available
       ? validPrice(value.unit_price_toman) && validPrice(value.line_total_toman)
       : value.unit_price_toman === null && value.line_total_toman === null)
@@ -119,6 +123,7 @@ export function AddToCart({ product }: { product: PublicProduct }) {
   const [busy, setBusy] = useState(false);
   const [login, setLogin] = useState(false);
   const lock = useRef(false);
+  const selectedVariant = product.variants.find((v) => v.id === selected);
   async function add(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (lock.current || !selected) return;
@@ -153,10 +158,14 @@ export function AddToCart({ product }: { product: PublicProduct }) {
               یک ترکیب انتخاب کن
             </option>
             {product.variants.map((v) => (
-              <option key={v.id} value={v.id}>
+              <option
+                key={v.id}
+                value={v.id}
+                disabled={v.available_quantity === 0}
+              >
                 {v.color ?? "بدون رنگ"} · {v.size ?? "بدون اندازه"} —{" "}
                 {money.format(v.price.sale_toman ?? v.price.regular_toman)}{" "}
-                تومان
+                تومان{v.available_quantity === 0 ? " · ناموجود" : ""}
               </option>
             ))}
           </select>
@@ -166,14 +175,20 @@ export function AddToCart({ product }: { product: PublicProduct }) {
           <input
             type="number"
             min="1"
-            max="9"
+            max={Math.min(9, selectedVariant?.available_quantity ?? 9)}
             step="1"
             required
             value={quantity}
             onChange={(event) => setQuantity(Number(event.target.value))}
           />
         </label>
-        <button className="primary-link" type="submit">
+        <button
+          className="primary-link"
+          type="submit"
+          disabled={
+            !selectedVariant || selectedVariant.available_quantity < quantity
+          }
+        >
           {busy ? "در حال ذخیره…" : "ذخیره در سبد"}
         </button>
       </fieldset>
@@ -271,22 +286,33 @@ export default function CustomerCart() {
                   {line.available ? (
                     <p>{money.format(line.line_total_toman ?? 0)} تومان</p>
                   ) : (
-                    <p>این انتخاب دیگر در دسترس نیست؛ از سبد حذفش کن.</p>
+                    <p>
+                      تعداد انتخاب‌شده در دسترس نیست؛ تعداد را کم کن یا از سبد
+                      حذفش کن.
+                    </p>
                   )}
                   <label>
                     تعداد {line.name}
                     <select
                       value={line.quantity}
-                      disabled={busy || !line.available}
+                      disabled={busy || line.available_quantity === 0}
                       onChange={(event) =>
                         void update(line.variant_id, Number(event.target.value))
                       }
                     >
-                      {Array.from({ length: 9 }, (_, index) => (
-                        <option key={index + 1} value={index + 1}>
-                          {index + 1}
+                      {line.quantity > Math.min(9, line.available_quantity) && (
+                        <option value={line.quantity} disabled>
+                          {line.quantity} (بیش از موجودی)
                         </option>
-                      ))}
+                      )}
+                      {Array.from(
+                        { length: Math.min(9, line.available_quantity) },
+                        (_, index) => (
+                          <option key={index + 1} value={index + 1}>
+                            {index + 1}
+                          </option>
+                        ),
+                      )}
                     </select>
                   </label>
                   <button

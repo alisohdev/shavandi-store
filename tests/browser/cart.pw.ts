@@ -28,6 +28,7 @@ test("customer saves a selected variant, changes quantity and removes it", async
                 color: "آبی",
                 quantity,
                 available: true,
+                available_quantity: 5,
                 unit_price_toman: 160000,
                 line_total_toman: 160000 * quantity,
               },
@@ -35,6 +36,7 @@ test("customer saves a selected variant, changes quantity and removes it", async
           : [],
         subtotal_toman: 160000 * quantity,
         has_unavailable: false,
+        available_quantity: 0,
       },
     });
   });
@@ -94,22 +96,67 @@ test("signed-out and unavailable cart states require explicit recovery", async (
             color: null,
             quantity: 2,
             available: false,
+            available_quantity: 0,
             unit_price_toman: null,
             line_total_toman: null,
           },
         ],
         subtotal_toman: 0,
         has_unavailable: true,
+        available_quantity: 5,
       },
     }),
   );
   await page.reload();
   await expect(
-    page.getByText("این انتخاب دیگر در دسترس نیست؛ از سبد حذفش کن."),
+    page.getByText(
+      "تعداد انتخاب‌شده در دسترس نیست؛ تعداد را کم کن یا از سبد حذفش کن.",
+    ),
   ).toBeVisible();
   await expect(page.getByLabel("تعداد کالای پنهان")).toBeDisabled();
   await expect(
     page.getByRole("button", { name: "حذف کالای پنهان" }),
   ).toBeEnabled();
   await expect(page.getByText("جمع کالاهای در دسترس: ۰ تومان")).toBeVisible();
+});
+
+test("a stock reduction lets a customer lower an existing cart quantity", async ({
+  page,
+}) => {
+  let quantity = 3;
+  await page.route("**/api/v1/auth/csrf", (route) =>
+    route.fulfill({ json: { csrf_token: "cart-csrf" } }),
+  );
+  await page.route("**/api/v1/cart**", async (route) => {
+    if (route.request().method() === "POST") {
+      expect(route.request().postDataJSON()).toEqual({ quantity: 1 });
+      quantity = 1;
+    }
+    await route.fulfill({
+      json: {
+        lines: [
+          {
+            variant_id: "variant-1",
+            product_slug: "live-shirt",
+            name: "پیراهن کاتالوگ",
+            size: "M",
+            color: "آبی",
+            quantity,
+            available: quantity === 1,
+            available_quantity: 1,
+            unit_price_toman: quantity === 1 ? 160000 : null,
+            line_total_toman: quantity === 1 ? 160000 : null,
+          },
+        ],
+        subtotal_toman: quantity === 1 ? 160000 : 0,
+        has_unavailable: quantity !== 1,
+      },
+    });
+  });
+  await page.goto("/cart/");
+  await expect(page.getByLabel("تعداد پیراهن کاتالوگ")).toHaveValue("3");
+  await page.getByLabel("تعداد پیراهن کاتالوگ").selectOption("1");
+  await expect(
+    page.getByText("جمع کالاهای در دسترس: ۱۶۰٬۰۰۰ تومان"),
+  ).toBeVisible();
 });

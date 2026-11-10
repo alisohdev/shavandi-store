@@ -1934,3 +1934,7 @@ summary:focus-visible,
   opacity: 0.6;
   cursor: wait;
 }
+
+.admin-editor-section label {
+  overflow-wrap: anywhere;
+}

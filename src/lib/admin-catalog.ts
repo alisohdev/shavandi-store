@@ -8,6 +8,8 @@ export type AdminCategory = {
 };
 
 export type AdminVariant = {
+  readonly StockOnHand: number;
+  readonly StockVersion: number;
   readonly ID: string;
   readonly Size: string | null;
   readonly Color: string | null;

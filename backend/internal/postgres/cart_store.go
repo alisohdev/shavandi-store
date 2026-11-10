@@ -34,7 +34,7 @@ func (s *CartStore) Set(ctx context.Context, userID, variantID string, quantity 
 		_, err = tx.Exec(ctx, `DELETE FROM shavandi.cart_lines WHERE user_id=$1::uuid AND variant_id=$2::uuid`, userID, variantID)
 	} else {
 		var available bool
-		err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM shavandi.variants v JOIN shavandi.products p ON p.id=v.product_id JOIN shavandi.effective_active_categories c ON c.id=p.primary_category_id WHERE v.id=$1::uuid AND v.active AND p.publication_state='published')`, variantID).Scan(&available)
+		err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM shavandi.variants v JOIN shavandi.products p ON p.id=v.product_id JOIN shavandi.effective_active_categories c ON c.id=p.primary_category_id WHERE v.id=$1::uuid AND v.active AND p.publication_state='published' AND v.stock_on_hand >= $2)`, variantID, quantity).Scan(&available)
 		if err != nil {
 			return err
 		}
@@ -61,7 +61,8 @@ func (s *CartStore) Set(ctx context.Context, userID, variantID string, quantity 
 func (s *CartStore) Get(ctx context.Context, userID string) (cart.Snapshot, error) {
 	result := cart.Snapshot{Lines: []cart.Line{}}
 	rows, err := s.pool.Query(ctx, `SELECT v.id::text,sl.slug,p.name,v.size,v.color,l.quantity,
- (v.active AND p.publication_state='published' AND c.id IS NOT NULL),
+ (v.active AND p.publication_state='published' AND c.id IS NOT NULL AND v.stock_on_hand>=l.quantity),
+ CASE WHEN v.active AND p.publication_state='published' AND c.id IS NOT NULL THEN v.stock_on_hand ELSE 0 END,
  coalesce(v.sale_price_override_toman, CASE WHEN v.regular_price_override_toman IS NULL THEN p.sale_price_toman END, v.regular_price_override_toman,p.regular_price_toman)
  FROM shavandi.cart_lines l JOIN shavandi.variants v ON v.id=l.variant_id JOIN shavandi.products p ON p.id=v.product_id
  JOIN shavandi.product_slugs sl ON sl.product_id=p.id AND sl.is_current
@@ -74,7 +75,7 @@ func (s *CartStore) Get(ctx context.Context, userID string) (cart.Snapshot, erro
 	for rows.Next() {
 		var line cart.Line
 		var unit int64
-		if err = rows.Scan(&line.VariantID, &line.ProductSlug, &line.Name, &line.Size, &line.Color, &line.Quantity, &line.Available, &unit); err != nil {
+		if err = rows.Scan(&line.VariantID, &line.ProductSlug, &line.Name, &line.Size, &line.Color, &line.Quantity, &line.Available, &line.AvailableQuantity, &unit); err != nil {
 			return result, err
 		}
 		if line.Available {

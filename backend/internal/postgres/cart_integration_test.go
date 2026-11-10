@@ -33,6 +33,9 @@ func TestCartPersistenceIsolationRepricingAndVisibility(t *testing.T) {
 		t.Fatal(err)
 	}
 	variant := string(product.Variants[0].ID)
+	if _, err = pool.Exec(ctx, `UPDATE shavandi.variants SET stock_on_hand=9 WHERE id=$1::uuid`, variant); err != nil {
+		t.Fatal(err)
+	}
 	if err = store.Set(ctx, first, variant, 2); !errors.Is(err, cart.ErrUnavailable) {
 		t.Fatalf("draft accepted: %v", err)
 	}
@@ -105,7 +108,7 @@ func TestCartPersistenceIsolationRepricingAndVisibility(t *testing.T) {
 	if _, err = pool.Exec(ctx, `UPDATE shavandi.products SET publication_state='published' WHERE id=$1::uuid`, string(product.ID)); err != nil {
 		t.Fatal(err)
 	}
-	rows, err := pool.Query(ctx, `INSERT INTO shavandi.variants(id,product_id,sku,size,active) SELECT gen_random_uuid(),$1::uuid,'cart-limit-'||n,n::text,true FROM generate_series(1,51) n RETURNING id::text`, string(product.ID))
+	rows, err := pool.Query(ctx, `INSERT INTO shavandi.variants(id,product_id,sku,size,active,stock_on_hand) SELECT gen_random_uuid(),$1::uuid,'cart-limit-'||n,n::text,true,9 FROM generate_series(1,51) n RETURNING id::text`, string(product.ID))
 	if err != nil {
 		t.Fatal(err)
 	}

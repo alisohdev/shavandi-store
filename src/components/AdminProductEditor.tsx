@@ -162,6 +162,61 @@ export default function AdminProductEditor({
       {product && (
         <fieldset disabled={busy || conflict}>
           <legend>انتشار و تصاویر</legend>
+          <h4>موجودی ترکیب‌ها</h4>
+          <p>موجودی اولیه صفر است. تعداد واقعی را همراه دلیل ثبت کن.</p>
+          {product.Variants.map((variant) => (
+            <form
+              key={`${variant.ID}:${variant.StockVersion}`}
+              onSubmit={(event) => {
+                event.preventDefault();
+                const data = new FormData(event.currentTarget);
+                const quantity = Number(data.get("quantity"));
+                if (
+                  !Number.isSafeInteger(quantity) ||
+                  quantity < 0 ||
+                  quantity > 1000000
+                ) {
+                  setMessage("موجودی باید عدد صحیح بین صفر و یک میلیون باشد.");
+                  return;
+                }
+                void perform(() =>
+                  mutateAdminProduct(
+                    `${base}/variants/${encodeURIComponent(variant.ID)}/stock`,
+                    "PATCH",
+                    {
+                      version: variant.StockVersion,
+                      quantity,
+                      reason: String(data.get("reason")).trim(),
+                    },
+                  ),
+                );
+              }}
+            >
+              <p>
+                {variant.Color ?? "بدون رنگ"} · {variant.Size ?? "بدون اندازه"}
+              </p>
+              <label>
+                موجودی {variant.ID}
+                <input
+                  name="quantity"
+                  type="number"
+                  min="0"
+                  max="1000000"
+                  step="1"
+                  required
+                  defaultValue={variant.StockOnHand}
+                />
+              </label>
+              <label>
+                دلیل تغییر {variant.ID}
+                <input name="reason" required maxLength={300} />
+              </label>
+              <button className="preview-secondary" type="submit">
+                ثبت موجودی {variant.ID}
+              </button>
+            </form>
+          ))}
+
           <p>انتشار به تصویر، ترکیب فعال و اطلاعات کامل محصول نیاز دارد.</p>
           <button
             className="preview-primary"

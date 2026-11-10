@@ -376,7 +376,18 @@ test("admin saves a product, handles a conflict, and publishes the fresh version
     SalePriceToman: null,
     PublicationState: "draft",
     Version: 1,
-    Variants: [],
+    Variants: [
+      {
+        ID: "stock-variant",
+        Size: "M",
+        Color: "Blue",
+        Active: true,
+        RegularPriceOverrideToman: null,
+        SalePriceOverrideToman: null,
+        StockOnHand: 0,
+        StockVersion: 1,
+      },
+    ],
     Images: [],
   };
   let conflict = false;
@@ -410,6 +421,23 @@ test("admin saves a product, handles a conflict, and publishes the fresh version
     }
     expect(request.headers()["x-csrf-token"]).toBe("browser-csrf");
     const body = request.postDataJSON();
+    if (path.endsWith("/stock")) {
+      expect(body).toEqual({
+        version: 1,
+        quantity: 4,
+        reason: "Initial count",
+      });
+      product = {
+        ...product,
+        Variants: product.Variants.map((v) => ({
+          ...v,
+          StockOnHand: 4,
+          StockVersion: 2,
+        })),
+      };
+      await route.fulfill({ json: { product } });
+      return;
+    }
     expect(body.version).toBe(product.Version);
     if (conflict) {
       conflict = false;
@@ -459,6 +487,16 @@ test("admin saves a product, handles a conflict, and publishes the fresh version
   await expect(
     page.getByRole("button", { name: "پنهان کردن محصول", exact: true }),
   ).toBeVisible();
+  await page.getByLabel("موجودی stock-variant", { exact: true }).fill("4");
+  await page
+    .getByLabel("دلیل تغییر stock-variant", { exact: true })
+    .fill("Initial count");
+  await page
+    .getByRole("button", { name: "ثبت موجودی stock-variant", exact: true })
+    .click();
+  await expect(
+    page.getByLabel("موجودی stock-variant", { exact: true }),
+  ).toHaveValue("4");
   await expectNoOverflow(page);
   await page.screenshot({
     path: "output/playwright/admin-editor-360.png",

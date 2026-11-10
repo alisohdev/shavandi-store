@@ -8,6 +8,7 @@ export type PublicProduct = {
   regular_price_toman: number;
   sale_price_toman: number | null;
   variants: {
+    available_quantity: number;
     id: string;
     size: string | null;
     color: string | null;
@@ -56,6 +57,9 @@ export function parsePublicProduct(value: unknown): PublicProduct {
       (v) =>
         record(v) &&
         text(v.id) &&
+        typeof v.available_quantity === "number" &&
+        Number.isSafeInteger(v.available_quantity) &&
+        v.available_quantity >= 0 &&
         nullableText(v.size) &&
         nullableText(v.color) &&
         record(v.price) &&

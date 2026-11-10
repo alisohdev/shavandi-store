@@ -111,6 +111,17 @@ type ShavandiProductSlug struct {
 	CreatedAt pgtype.Timestamptz
 }
 
+type ShavandiStockChange struct {
+	ID               int64
+	VariantID        pgtype.UUID
+	ActorID          pgtype.UUID
+	PreviousQuantity int32
+	NewQuantity      int32
+	Version          int64
+	Reason           string
+	CreatedAt        pgtype.Timestamptz
+}
+
 type ShavandiUser struct {
 	ID           pgtype.UUID
 	Phone        string
@@ -132,4 +143,6 @@ type ShavandiVariant struct {
 	Active                    bool
 	CreatedAt                 pgtype.Timestamptz
 	UpdatedAt                 pgtype.Timestamptz
+	StockOnHand               int32
+	StockVersion              int64
 }

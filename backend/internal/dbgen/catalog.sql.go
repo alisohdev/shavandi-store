@@ -138,7 +138,7 @@ func (q *Queries) ListPublicImages(ctx context.Context, productIds []pgtype.UUID
 }
 
 const listPublicVariants = `-- name: ListPublicVariants :many
-SELECT id, product_id, size, color, regular_price_override_toman, sale_price_override_toman
+SELECT id, product_id, size, color, regular_price_override_toman, sale_price_override_toman, stock_on_hand
 FROM shavandi.variants
 WHERE product_id = ANY($1::uuid[])
   AND active
@@ -152,6 +152,7 @@ type ListPublicVariantsRow struct {
 	Color                     pgtype.Text
 	RegularPriceOverrideToman pgtype.Int8
 	SalePriceOverrideToman    pgtype.Int8
+	StockOnHand               int32
 }
 
 func (q *Queries) ListPublicVariants(ctx context.Context, productIds []pgtype.UUID) ([]ListPublicVariantsRow, error) {
@@ -170,6 +171,7 @@ func (q *Queries) ListPublicVariants(ctx context.Context, productIds []pgtype.UU
 			&i.Color,
 			&i.RegularPriceOverrideToman,
 			&i.SalePriceOverrideToman,
+			&i.StockOnHand,
 		); err != nil {
 			return nil, err
 		}

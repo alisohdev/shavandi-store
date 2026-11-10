@@ -63,6 +63,9 @@ func NewHandler(checkDatabase DatabaseCheck, catalogReader catalog.Reader, logge
 			registerCartRoutes(router, settings.authentication, settings.authOptions, settings.cart)
 		}
 		if settings.adminCatalog != nil {
+			if settings.inventory != nil {
+				registerInventoryRoutes(router, settings.authentication, settings.authOptions, settings.adminCatalog, settings.inventory)
+			}
 			registerAdminCatalogRoutes(router, settings.authentication, settings.authOptions, settings.adminCatalog)
 			if settings.imageStore != nil {
 				registerImageRoutes(router, settings.authentication, settings.authOptions, settings.adminCatalog, settings.imageStore)
