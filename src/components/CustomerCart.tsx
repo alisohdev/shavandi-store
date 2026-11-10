@@ -1,3 +1,4 @@
+import { ReserveOrder } from "./CustomerOrders";
 import { useEffect, useRef, useState, type SubmitEvent } from "react";
 import type { PublicProduct } from "../lib/public-catalog";
 
@@ -14,6 +15,7 @@ type CartLine = {
   line_total_toman: number | null;
 };
 type Cart = {
+  quote_token: string;
   lines: CartLine[];
   subtotal_toman: number;
   has_unavailable: boolean;
@@ -98,6 +100,9 @@ async function requestCart(
     !cart.lines.every(validLine) ||
     !("has_unavailable" in cart) ||
     typeof cart.has_unavailable !== "boolean" ||
+    !("quote_token" in cart) ||
+    typeof cart.quote_token !== "string" ||
+    !/^[a-f0-9]{64}$/.test(cart.quote_token) ||
     !("subtotal_toman" in cart) ||
     typeof cart.subtotal_toman !== "number" ||
     !validPrice(cart.subtotal_toman)
@@ -203,6 +208,7 @@ export function AddToCart({ product }: { product: PublicProduct }) {
 }
 
 export default function CustomerCart() {
+  const [orderState, setOrderState] = useState<string | null>(null);
   const [cart, setCart] = useState<Cart | null>(null);
   const [error, setError] = useState("");
   const [login, setLogin] = useState(false);
@@ -265,6 +271,13 @@ export default function CustomerCart() {
         </button>
       )}
       {busy && <p role="status">در حال دریافت سبد…</p>}
+      {orderState && (
+        <p role="status">
+          {orderState === "pending_confirmation"
+            ? "سفارش رزرو شد. رزرو پس از ۱۵ دقیقه آزاد می‌شود؛ پرداخت و ارسال هنوز فعال نیست."
+            : "این درخواست قبلاً ثبت شده است. وضعیت آن را در سفارش‌ها ببین."}
+        </p>
+      )}
       {cart && (
         <>
           {cart.lines.length === 0 ? (
@@ -330,11 +343,21 @@ export default function CustomerCart() {
           {cart.has_unavailable && (
             <p role="status">کالاهای ناموجود در جمع حساب نشده‌اند.</p>
           )}
-          <p className="purchase-notice">
-            ارسال، ثبت سفارش و پرداخت هنوز فعال نیست.
-          </p>
+          {cart.lines.length > 0 && !cart.has_unavailable && (
+            <ReserveOrder
+              quote={cart.quote_token}
+              onCreated={(status) => {
+                setOrderState(status);
+                setCart(null);
+              }}
+            />
+          )}
+          <p className="purchase-notice">پرداخت و ارسال هنوز فعال نیست.</p>
         </>
       )}
+      <a className="text-link" href="/orders/">
+        دیدن سفارش‌ها ←
+      </a>
       <a className="text-link" href="/collections/">
         ادامهٔ انتخاب محصولات ←
       </a>

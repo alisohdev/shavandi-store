@@ -18,6 +18,7 @@ test("customer saves a selected variant, changes quantity and removes it", async
     }
     await route.fulfill({
       json: {
+        quote_token: "a".repeat(64),
         lines: quantity
           ? [
               {
@@ -87,6 +88,7 @@ test("signed-out and unavailable cart states require explicit recovery", async (
   await page.route("**/api/v1/cart**", (route) =>
     route.fulfill({
       json: {
+        quote_token: "a".repeat(64),
         lines: [
           {
             variant_id: "variant-1",
@@ -134,6 +136,7 @@ test("a stock reduction lets a customer lower an existing cart quantity", async 
     }
     await route.fulfill({
       json: {
+        quote_token: "a".repeat(64),
         lines: [
           {
             variant_id: "variant-1",

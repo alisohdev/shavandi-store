@@ -19,6 +19,7 @@ type Line struct {
 	LineTotalToman    *int64  `json:"line_total_toman"`
 }
 type Snapshot struct {
+	QuoteToken     string `json:"quote_token"`
 	Lines          []Line `json:"lines"`
 	SubtotalToman  int64  `json:"subtotal_toman"`
 	HasUnavailable bool   `json:"has_unavailable"`

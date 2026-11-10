@@ -1,0 +1,13 @@
+---
+import StoreLayout from "../layouts/StoreLayout.astro";
+import CustomerOrders from "../components/CustomerOrders";
+---
+
+<StoreLayout title="سفارش‌های من | شواندی">
+  <div class="page-width checkout-page">
+    <div class="page-heading">
+      <h1>سفارش‌های من</h1>
+    </div>
+    <CustomerOrders client:load />
+  </div>
+</StoreLayout>

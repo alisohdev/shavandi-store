@@ -29,6 +29,7 @@ test("public catalog renders API products, categories, pagination and variant pr
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+  await expect(page.getByLabel("رنگ و اندازه", { exact: true })).toBeEnabled();
   await page.screenshot({
     path: "output/playwright/public-product-360.png",
     fullPage: true,

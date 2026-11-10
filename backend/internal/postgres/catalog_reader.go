@@ -166,7 +166,7 @@ func loadPublicProducts(ctx context.Context, queries *dbgen.Queries, bases []pub
 			return nil, fmt.Errorf("calculate public variant price: %w", err)
 		}
 		products[index].Variants = append(products[index].Variants, catalog.PublicVariant{
-			AvailableQuantity: int(row.StockOnHand), ID: catalog.ID(uuidString(row.ID)), Size: textPointer(row.Size), Color: textPointer(row.Color), Price: price,
+			AvailableQuantity: int(row.AvailableQuantity), ID: catalog.ID(uuidString(row.ID)), Size: textPointer(row.Size), Color: textPointer(row.Color), Price: price,
 		})
 	}
 	images, err := queries.ListPublicImages(ctx, productIDs)

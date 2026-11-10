@@ -59,6 +59,9 @@ func NewHandler(checkDatabase DatabaseCheck, catalogReader catalog.Reader, logge
 	}
 	if settings.authentication != nil {
 		registerAuthRoutes(router, settings.authentication, settings.authOptions)
+		if settings.orders != nil {
+			registerOrderRoutes(router, settings.authentication, settings.authOptions, settings.orders)
+		}
 		if settings.cart != nil {
 			registerCartRoutes(router, settings.authentication, settings.authOptions, settings.cart)
 		}

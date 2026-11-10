@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"syscall"
+	"time"
 
 	"github.com/shavandi/store/backend/internal/auth"
 	"github.com/shavandi/store/backend/internal/catalog"
@@ -68,10 +69,32 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	if err != nil {
 		return fmt.Errorf("initialize product image storage: %w", err)
 	}
+	orderStore := postgres.NewOrderStore(pool)
+	workerDone := make(chan struct{})
+	workerCtx, stopWorker := context.WithCancel(ctx)
+	defer func() { stopWorker(); <-workerDone }()
+	go func() {
+		defer close(workerDone)
+		ticker := time.NewTicker(time.Minute)
+		defer ticker.Stop()
+		for {
+			cleanupCtx, cancel := context.WithTimeout(workerCtx, 10*time.Second)
+			cleanupErr := orderStore.Expire(cleanupCtx)
+			cancel()
+			if cleanupErr != nil && workerCtx.Err() == nil {
+				logger.Warn("order expiry cleanup failed")
+			}
+			select {
+			case <-workerCtx.Done():
+				return
+			case <-ticker.C:
+			}
+		}
+	}()
 	handler := httpapi.NewHandler(func(ctx context.Context) error {
 		_, err := queries.Readiness(ctx)
 		return err
-	}, catalogService, logger, httpapi.WithAuthentication(authService, httpapi.AuthOptions{AllowedOrigins: authConfig.AllowedOrigins, CookieSecure: authConfig.CookieSecure}), httpapi.WithAdminCatalog(catalogService), httpapi.WithImageStore(imageStorage), httpapi.WithCart(postgres.NewCartStore(pool)), httpapi.WithInventory(postgres.NewInventoryStore(pool)))
+	}, catalogService, logger, httpapi.WithAuthentication(authService, httpapi.AuthOptions{AllowedOrigins: authConfig.AllowedOrigins, CookieSecure: authConfig.CookieSecure}), httpapi.WithAdminCatalog(catalogService), httpapi.WithImageStore(imageStorage), httpapi.WithCart(postgres.NewCartStore(pool)), httpapi.WithInventory(postgres.NewInventoryStore(pool)), httpapi.WithOrders(orderStore))
 
 	listener, err := net.Listen("tcp", cfg.HTTPAddr)
 	if err != nil {

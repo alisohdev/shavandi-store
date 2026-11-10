@@ -1938,3 +1938,7 @@ summary:focus-visible,
 .admin-editor-section label {
   overflow-wrap: anywhere;
 }
+
+.live-cart li {
+  overflow-wrap: anywhere;
+}

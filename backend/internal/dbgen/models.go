@@ -82,6 +82,27 @@ type ShavandiEffectiveActiveCategory struct {
 	UpdatedAt    pgtype.Timestamptz
 }
 
+type ShavandiOrder struct {
+	ID            pgtype.UUID
+	UserID        pgtype.UUID
+	RequestKey    pgtype.UUID
+	QuoteToken    string
+	Status        string
+	SubtotalToman int64
+	CreatedAt     pgtype.Timestamptz
+	ExpiresAt     pgtype.Timestamptz
+}
+
+type ShavandiOrderLine struct {
+	OrderID        pgtype.UUID
+	VariantID      pgtype.UUID
+	Name           string
+	Size           pgtype.Text
+	Color          pgtype.Text
+	Quantity       int32
+	UnitPriceToman int64
+}
+
 type ShavandiProduct struct {
 	ID                pgtype.UUID
 	PrimaryCategoryID pgtype.UUID
@@ -145,4 +166,5 @@ type ShavandiVariant struct {
 	UpdatedAt                 pgtype.Timestamptz
 	StockOnHand               int32
 	StockVersion              int64
+	ReservedQuantity          int32
 }

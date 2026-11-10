@@ -2,7 +2,11 @@ package postgres
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
+	"github.com/jackc/pgx/v5"
 	"math"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -34,7 +38,7 @@ func (s *CartStore) Set(ctx context.Context, userID, variantID string, quantity 
 		_, err = tx.Exec(ctx, `DELETE FROM shavandi.cart_lines WHERE user_id=$1::uuid AND variant_id=$2::uuid`, userID, variantID)
 	} else {
 		var available bool
-		err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM shavandi.variants v JOIN shavandi.products p ON p.id=v.product_id JOIN shavandi.effective_active_categories c ON c.id=p.primary_category_id WHERE v.id=$1::uuid AND v.active AND p.publication_state='published' AND v.stock_on_hand >= $2)`, variantID, quantity).Scan(&available)
+		err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM shavandi.variants v JOIN shavandi.products p ON p.id=v.product_id JOIN shavandi.effective_active_categories c ON c.id=p.primary_category_id WHERE v.id=$1::uuid AND v.active AND p.publication_state='published' AND (v.stock_on_hand-v.reserved_quantity) >= $2)`, variantID, quantity).Scan(&available)
 		if err != nil {
 			return err
 		}
@@ -59,10 +63,15 @@ func (s *CartStore) Set(ctx context.Context, userID, variantID string, quantity 
 }
 
 func (s *CartStore) Get(ctx context.Context, userID string) (cart.Snapshot, error) {
+	return readCart(ctx, s.pool, userID)
+}
+func readCart(ctx context.Context, queryer interface {
+	Query(context.Context, string, ...any) (pgx.Rows, error)
+}, userID string) (cart.Snapshot, error) {
 	result := cart.Snapshot{Lines: []cart.Line{}}
-	rows, err := s.pool.Query(ctx, `SELECT v.id::text,sl.slug,p.name,v.size,v.color,l.quantity,
- (v.active AND p.publication_state='published' AND c.id IS NOT NULL AND v.stock_on_hand>=l.quantity),
- CASE WHEN v.active AND p.publication_state='published' AND c.id IS NOT NULL THEN v.stock_on_hand ELSE 0 END,
+	rows, err := queryer.Query(ctx, `SELECT v.id::text,sl.slug,p.name,v.size,v.color,l.quantity,
+ (v.active AND p.publication_state='published' AND c.id IS NOT NULL AND (v.stock_on_hand-v.reserved_quantity)>=l.quantity),
+ CASE WHEN v.active AND p.publication_state='published' AND c.id IS NOT NULL THEN (v.stock_on_hand-v.reserved_quantity) ELSE 0 END,
  coalesce(v.sale_price_override_toman, CASE WHEN v.regular_price_override_toman IS NULL THEN p.sale_price_toman END, v.regular_price_override_toman,p.regular_price_toman)
  FROM shavandi.cart_lines l JOIN shavandi.variants v ON v.id=l.variant_id JOIN shavandi.products p ON p.id=v.product_id
  JOIN shavandi.product_slugs sl ON sl.product_id=p.id AND sl.is_current
@@ -95,5 +104,14 @@ func (s *CartStore) Get(ctx context.Context, userID string) (cart.Snapshot, erro
 		}
 		result.Lines = append(result.Lines, line)
 	}
-	return result, rows.Err()
+	if rows.Err() != nil {
+		return result, rows.Err()
+	}
+	data, err := json.Marshal(result.Lines)
+	if err != nil {
+		return result, err
+	}
+	sum := sha256.Sum256(data)
+	result.QuoteToken = hex.EncodeToString(sum[:])
+	return result, nil
 }

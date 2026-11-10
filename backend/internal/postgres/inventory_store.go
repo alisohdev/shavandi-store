@@ -25,18 +25,25 @@ func (s *InventoryStore) SetStock(ctx context.Context, productID, variantID, act
 		return err
 	}
 	defer tx.Rollback(ctx)
+	if err = lockCatalogMutations(ctx, tx); err != nil {
+		return err
+	}
 	var actor string
 	if err = tx.QueryRow(ctx, `SELECT id::text FROM shavandi.users WHERE id=$1::uuid AND active AND role='admin' FOR SHARE`, actorID).Scan(&actor); err != nil {
 		return err
 	}
+	var reserved int
 	var previous int
 	var current int64
-	err = tx.QueryRow(ctx, `SELECT stock_on_hand,stock_version FROM shavandi.variants WHERE id=$1::uuid AND product_id=$2::uuid FOR UPDATE`, variantID, productID).Scan(&previous, &current)
+	err = tx.QueryRow(ctx, `SELECT stock_on_hand,stock_version,reserved_quantity FROM shavandi.variants WHERE id=$1::uuid AND product_id=$2::uuid FOR UPDATE`, variantID, productID).Scan(&previous, &current, &reserved)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return catalog.ErrNotFound
 	}
 	if err != nil {
 		return err
+	}
+	if quantity < reserved {
+		return catalog.ErrInvalid
 	}
 	if current != version {
 		return catalog.ErrVersionConflict

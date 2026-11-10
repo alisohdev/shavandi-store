@@ -193,7 +193,8 @@ export default function AdminProductEditor({
               }}
             >
               <p>
-                {variant.Color ?? "بدون رنگ"} · {variant.Size ?? "بدون اندازه"}
+                {variant.Color ?? "بدون رنگ"} · {variant.Size ?? "بدون اندازه"}{" "}
+                · رزروشده: {variant.ReservedQuantity ?? 0}
               </p>
               <label>
                 موجودی {variant.ID}

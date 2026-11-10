@@ -65,6 +65,7 @@ type Product struct {
 }
 
 type Variant struct {
+	ReservedQuantity          int   `json:"ReservedQuantity"`
 	StockOnHand               int   `json:"StockOnHand"`
 	StockVersion              int64 `json:"StockVersion"`
 	ID                        ID
@@ -467,7 +468,7 @@ func ToPublicProduct(product Product) (PublicProduct, error) {
 		if err != nil {
 			return PublicProduct{}, err
 		}
-		result.Variants = append(result.Variants, PublicVariant{AvailableQuantity: variant.StockOnHand, ID: variant.ID, Size: cloneString(variant.Size), Color: cloneString(variant.Color), Price: price})
+		result.Variants = append(result.Variants, PublicVariant{AvailableQuantity: variant.StockOnHand - variant.ReservedQuantity, ID: variant.ID, Size: cloneString(variant.Size), Color: cloneString(variant.Color), Price: price})
 	}
 	for _, image := range product.Images {
 		result.Images = append(result.Images, PublicImage{ID: image.ID, AssetRef: image.AssetRef, SortOrder: image.SortOrder, AltText: cloneString(image.AltText)})

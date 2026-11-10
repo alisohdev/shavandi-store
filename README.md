@@ -89,3 +89,7 @@ Catalog routes now use the Go public API at request time. Build with `bun run bu
 ## Customer cart
 
 The signed-in account cart is at `/cart/`; product pages save selected variant IDs and absolute quantities to PostgreSQL. Apply migration `20261110120000` through the existing Goose workflow before starting the updated API. This cart recomputes catalog prices and does not reserve stock, create orders, or accept payment. The legacy `/checkout/` page remains a separate fixture demo. See [customer cart handoff](docs/customer-cart-handoff.md).
+
+## Temporary orders
+
+Customers can reserve their current account cart for 15 minutes and view/cancel reservations at `/orders/`. Apply migration `20261110140000` before starting the updated API. Reservations do not accept payment or arrange shipping; their displayed total includes only merchandise. See [order reservations](docs/orders-handoff.md) for retry, expiry and verification behavior.

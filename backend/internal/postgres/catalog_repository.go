@@ -399,7 +399,7 @@ func readProduct(ctx context.Context, queryer interface {
 
 	rows, err := queryer.Query(ctx, `
 		SELECT id::text, sku, size, color, regular_price_override_toman,
-		       sale_price_override_toman, active, stock_on_hand, stock_version
+		       sale_price_override_toman, active, stock_on_hand, stock_version, reserved_quantity
 		FROM shavandi.variants
 		WHERE product_id = $1::uuid
 		ORDER BY id
@@ -411,7 +411,7 @@ func readProduct(ctx context.Context, queryer interface {
 	for rows.Next() {
 		var variant catalog.Variant
 		if err := rows.Scan(&variant.ID, &variant.SKU, &variant.Size, &variant.Color,
-			&variant.RegularPriceOverrideToman, &variant.SalePriceOverrideToman, &variant.Active, &variant.StockOnHand, &variant.StockVersion); err != nil {
+			&variant.RegularPriceOverrideToman, &variant.SalePriceOverrideToman, &variant.Active, &variant.StockOnHand, &variant.StockVersion, &variant.ReservedQuantity); err != nil {
 			rows.Close()
 			return catalog.Product{}, err
 		}
