@@ -119,6 +119,20 @@ type ShavandiOrderLine struct {
 	UnitPriceToman int64
 }
 
+type ShavandiOrderPayment struct {
+	ID                  pgtype.UUID
+	OrderID             pgtype.UUID
+	Environment         string
+	MerchantFingerprint string
+	AmountRial          int64
+	DeliveryVersion     int64
+	Authority           pgtype.Text
+	Status              string
+	RefID               pgtype.Int8
+	BusyUntil           pgtype.Timestamptz
+	CreatedAt           pgtype.Timestamptz
+}
+
 type ShavandiProduct struct {
 	ID                pgtype.UUID
 	PrimaryCategoryID pgtype.UUID

@@ -19,6 +19,7 @@ import (
 	"github.com/shavandi/store/backend/internal/auth"
 	"github.com/shavandi/store/backend/internal/catalog"
 	"github.com/shavandi/store/backend/internal/imagestore"
+	"github.com/shavandi/store/backend/internal/payments"
 )
 
 type Authentication interface {
@@ -36,6 +37,8 @@ type AuthOptions struct {
 	CookieSecure   bool
 }
 type handlerOptions struct {
+	payments       *payments.Service
+	paymentOrigin  string
 	shipping       Shipping
 	orders         Orders
 	inventory      Inventory

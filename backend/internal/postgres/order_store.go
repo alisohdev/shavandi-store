@@ -101,7 +101,8 @@ func readOrder(ctx context.Context, query interface {
 	err := query.QueryRow(ctx, `SELECT o.id::text,o.status,o.subtotal_toman,o.created_at,o.expires_at,
  coalesce((SELECT jsonb_agg(jsonb_build_object('variant_id',l.variant_id::text,'name',l.name,'size',l.size,'color',l.color,'quantity',l.quantity,'unit_price_toman',l.unit_price_toman) ORDER BY l.variant_id) FROM shavandi.order_lines l WHERE l.order_id=o.id),'[]'::jsonb)
  , coalesce((SELECT jsonb_build_object('recipient',d.recipient,'phone',d.phone,'province',d.province,'city',d.city,'address',d.address,'postal_code',d.postal_code,'version',d.version,'shipping_method_id',d.shipping_method_id,'shipping_version',d.shipping_version,'shipping_name',d.shipping_name,'shipping_fee_toman',d.shipping_fee_toman) FROM shavandi.order_deliveries d WHERE d.order_id=o.id),'null'::jsonb)
- FROM shavandi.orders o WHERE o.id=$1::uuid AND o.user_id=$2::uuid`, id, userID).Scan(&order.ID, &order.Status, &order.SubtotalToman, &order.CreatedAt, &order.ExpiresAt, &lines, &delivery)
+ , coalesce((SELECT status FROM shavandi.order_payments WHERE order_id=o.id),'none'),(SELECT ref_id::text FROM shavandi.order_payments WHERE order_id=o.id),coalesce((SELECT environment FROM shavandi.order_payments WHERE order_id=o.id),'')
+ FROM shavandi.orders o WHERE o.id=$1::uuid AND o.user_id=$2::uuid`, id, userID).Scan(&order.ID, &order.Status, &order.SubtotalToman, &order.CreatedAt, &order.ExpiresAt, &lines, &delivery, &order.PaymentStatus, &order.PaymentReference, &order.PaymentEnvironment)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return order, orders.ErrNotFound
 	}
@@ -215,6 +216,13 @@ func (s *OrderStore) Cancel(ctx context.Context, userID, id string) (orders.Orde
 	}
 	if _, err = readOrder(ctx, tx, userID, id); err != nil {
 		return orders.Order{}, err
+	}
+	var inProgress bool
+	if err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM shavandi.order_payments WHERE order_id=$1::uuid AND status IN ('requesting','ready','unknown'))`, id).Scan(&inProgress); err != nil {
+		return orders.Order{}, err
+	}
+	if inProgress {
+		return orders.Order{}, orders.ErrConflict
 	}
 	if err = releaseOrder(ctx, tx, id, "cancelled"); err != nil {
 		return orders.Order{}, err

@@ -97,3 +97,7 @@ Customers can reserve their current account cart for 15 minutes and view/cancel 
 ## Delivery and shipping configuration
 
 The owner configures shipping methods and flat per-order fees in admin; no default shipping rate is supplied. Customers save recipient details and select a method on their active order reservation. Apply migrations `20261110150000` and `20261110160000` before starting the updated API. Zarinpal is selected for the next payment phase; payments remain disabled. See [delivery and shipping](docs/delivery-shipping-handoff.md).
+
+## Zarinpal payments
+
+The Zarinpal integration is implemented but disabled by default. Apply migration `20261110170000`, configure the backend merchant/environment/public origin, and verify this store's sandbox flow before production activation. Payment requests use the saved goods-plus-shipping total. Only gateway verification can mark an order paid; late payments require manual review. See [Zarinpal handoff](docs/zarinpal-payments-handoff.md) for callback routing, retry behavior and reconciliation limits.

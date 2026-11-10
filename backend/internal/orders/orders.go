@@ -18,11 +18,14 @@ type Line struct {
 	UnitPriceToman int64   `json:"unit_price_toman"`
 }
 type Order struct {
-	Delivery      *Delivery `json:"delivery"`
-	ID            string    `json:"id"`
-	Status        string    `json:"status"`
-	SubtotalToman int64     `json:"subtotal_toman"`
-	CreatedAt     time.Time `json:"created_at"`
-	ExpiresAt     time.Time `json:"expires_at"`
-	Lines         []Line    `json:"lines"`
+	PaymentEnvironment string    `json:"payment_environment"`
+	PaymentStatus      string    `json:"payment_status"`
+	PaymentReference   *string   `json:"payment_reference"`
+	Delivery           *Delivery `json:"delivery"`
+	ID                 string    `json:"id"`
+	Status             string    `json:"status"`
+	SubtotalToman      int64     `json:"subtotal_toman"`
+	CreatedAt          time.Time `json:"created_at"`
+	ExpiresAt          time.Time `json:"expires_at"`
+	Lines              []Line    `json:"lines"`
 }

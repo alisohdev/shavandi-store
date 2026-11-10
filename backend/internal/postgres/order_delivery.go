@@ -43,6 +43,13 @@ func (s *OrderStore) SaveDelivery(ctx context.Context, userID, id string, input 
 	if !unexpired {
 		return order, orders.ErrConflict
 	}
+	var paymentStarted bool
+	if err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM shavandi.order_payments WHERE order_id=$1::uuid)`, id).Scan(&paymentStarted); err != nil {
+		return order, err
+	}
+	if paymentStarted {
+		return order, orders.ErrConflict
+	}
 	current := int64(0)
 	if order.Delivery != nil {
 		current = order.Delivery.Version

@@ -1,3 +1,4 @@
+import OrderPayment from "./OrderPayment";
 import OrderDeliveryForm from "./OrderDeliveryForm";
 import { isOrderDelivery, type OrderDelivery } from "../lib/order-delivery";
 import { useEffect, useRef, useState } from "react";
@@ -5,7 +6,15 @@ import { useEffect, useRef, useState } from "react";
 type Order = {
   delivery: OrderDelivery | null;
   id: string;
-  status: "pending_confirmation" | "cancelled" | "expired";
+  status:
+    | "pending_confirmation"
+    | "cancelled"
+    | "expired"
+    | "paid"
+    | "payment_review";
+  payment_status: string;
+  payment_environment: string;
+  payment_reference: string | null;
   subtotal_toman: number;
   created_at: string;
   expires_at: string;
@@ -30,10 +39,22 @@ function parseOrder(value: unknown): Order {
   if (
     !record(value) ||
     typeof value.id !== "string" ||
-    !(value.delivery === null || isOrderDelivery(value.delivery)) ||
-    !["pending_confirmation", "cancelled", "expired"].includes(
-      String(value.status),
+    typeof value.payment_status !== "string" ||
+    !["", "sandbox", "production"].includes(
+      String(value.payment_environment),
     ) ||
+    !(
+      value.payment_reference === null ||
+      typeof value.payment_reference === "string"
+    ) ||
+    !(value.delivery === null || isOrderDelivery(value.delivery)) ||
+    ![
+      "pending_confirmation",
+      "cancelled",
+      "expired",
+      "paid",
+      "payment_review",
+    ].includes(String(value.status)) ||
     typeof value.subtotal_toman !== "number" ||
     !Number.isSafeInteger(value.subtotal_toman) ||
     value.subtotal_toman < 0 ||
@@ -221,7 +242,9 @@ export default function CustomerOrders() {
         (current) =>
           current?.map((item) => (item.id === id ? updated : item)) ?? null,
       );
-      setMessage("اطلاعات گیرنده و روش ارسال ذخیره شد. پرداخت هنوز فعال نیست.");
+      setMessage(
+        "اطلاعات گیرنده و روش ارسال ذخیره شد. مبلغ نهایی را پیش از پرداخت بررسی کن.",
+      );
     } catch (error) {
       setMessage(
         error instanceof OrderError && error.status === 400
@@ -239,10 +262,12 @@ export default function CustomerOrders() {
     pending_confirmation: "رزرو موقت",
     cancelled: "لغوشده",
     expired: "منقضی‌شده",
+    paid: "پرداخت تأییدشده",
+    payment_review: "پرداخت نیازمند بررسی فروشگاه",
   };
   return (
     <section className="live-cart">
-      <p>۲۰ سفارش اخیر حساب. پرداخت و ارسال هنوز فعال نیست.</p>
+      <p>۲۰ سفارش اخیر حساب. وضعیت پرداخت فقط پس از بررسی سرور تأیید می‌شود.</p>
       {message && <p role="alert">{message}</p>}
       {login && <a href="/login/">ورود به حساب</a>}
       <button
@@ -261,6 +286,35 @@ export default function CustomerOrders() {
               سفارش <bdi>{order.id}</bdi>
             </h2>
             <p>{status[order.status]}</p>
+            {order.payment_environment === "sandbox" && (
+              <p>پرداخت آزمایشی؛ وجه واقعی دریافت نشده است.</p>
+            )}
+            {order.payment_reference && (
+              <p>
+                شمارهٔ پیگیری پرداخت: <bdi>{order.payment_reference}</bdi>
+              </p>
+            )}
+            {order.status === "payment_review" && (
+              <p>
+                پرداخت تأیید شده، اما رزرو معتبر نبوده است. فروشگاه باید پرداخت
+                را بررسی و در صورت نیاز مسترد کند؛ کالا به صورت خودکار آمادهٔ
+                ارسال نشده است.
+              </p>
+            )}
+            {order.delivery?.shipping_fee_toman != null &&
+              order.status !== "paid" &&
+              order.status !== "payment_review" && (
+                <OrderPayment
+                  id={order.id}
+                  version={order.delivery.version}
+                  total={
+                    order.subtotal_toman + order.delivery.shipping_fee_toman
+                  }
+                  state={order.payment_status}
+                  onChanged={load}
+                />
+              )}
+
             <p>جمع کالاها: {money.format(order.subtotal_toman)} تومان</p>
             <ul>
               {order.lines.map((line) => (
@@ -306,12 +360,17 @@ export default function CustomerOrders() {
             )}
             {order.status === "pending_confirmation" && (
               <>
-                <OrderDeliveryForm
-                  key={`${order.id}:${order.delivery?.version ?? 0}`}
-                  delivery={order.delivery}
-                  busy={busy}
-                  onSave={(delivery) => saveDelivery(order.id, delivery)}
-                />
+                {order.payment_status === "none" && (
+                  <OrderDeliveryForm
+                    key={`${order.id}:${order.delivery?.version ?? 0}`}
+                    delivery={order.delivery}
+                    busy={busy}
+                    onSave={(delivery) => saveDelivery(order.id, delivery)}
+                  />
+                )}
+                {order.payment_status !== "none" && (
+                  <p>جزئیات این سفارش پس از آغاز پرداخت قابل تغییر نیست.</p>
+                )}
                 <p>
                   مهلت رزرو:{" "}
                   <time dateTime={order.expires_at}>
@@ -320,7 +379,12 @@ export default function CustomerOrders() {
                 </p>
                 <button
                   className="preview-secondary"
-                  disabled={busy}
+                  disabled={
+                    busy ||
+                    ["ready", "requesting", "unknown"].includes(
+                      order.payment_status,
+                    )
+                  }
                   onClick={() => void cancel(order.id)}
                 >
                   لغو رزرو {order.id}

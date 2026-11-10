@@ -1,5 +1,8 @@
 import { expect, test } from "@playwright/test";
 test.beforeEach(async ({ page }) => {
+  await page.route("**/api/v1/payments/config", (route) =>
+    route.fulfill({ json: { enabled: false, sandbox: false } }),
+  );
   await page.route("**/api/v1/shipping-methods", (route) =>
     route.fulfill({ json: { methods: [] } }),
   );
@@ -10,6 +13,9 @@ test("a customer retries an uncertain order request with the same key then cance
 }) => {
   const order = {
     delivery: null,
+    payment_status: "none",
+    payment_environment: "production",
+    payment_reference: null,
     id: "0192bbd1-9e2d-4a45-9baf-37f4d6280701",
     status: "pending_confirmation",
     subtotal_toman: 160000,
@@ -142,6 +148,9 @@ test("delivery details persist, keep drafts on conflict, and stay out of browser
     }),
   );
   const order = {
+    payment_status: "none",
+    payment_environment: "production",
+    payment_reference: null,
     id: "0192bbd1-9e2d-4a45-9baf-37f4d6280702",
     status: "pending_confirmation",
     subtotal_toman: 160000,

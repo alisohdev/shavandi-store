@@ -59,6 +59,7 @@ func NewHandler(checkDatabase DatabaseCheck, catalogReader catalog.Reader, logge
 	}
 	if settings.authentication != nil {
 		registerAuthRoutes(router, settings.authentication, settings.authOptions)
+		registerPaymentRoutes(router, settings.authentication, settings.authOptions, settings.payments, settings.paymentOrigin)
 		if settings.shipping != nil {
 			registerShippingRoutes(router, settings.authentication, settings.authOptions, settings.shipping)
 		}

@@ -23,7 +23,7 @@ import (
 	"github.com/shavandi/store/backend/internal/httpapi"
 )
 
-const latestMigrationVersion int64 = 20261110160000
+const latestMigrationVersion int64 = 20261110170000
 
 func TestRealPostgresMigrationReadinessAndVersionTracking(t *testing.T) {
 	pool, gooseDB := openFreshIntegrationDatabase(t)
