@@ -36,6 +36,7 @@ type AuthOptions struct {
 	CookieSecure   bool
 }
 type handlerOptions struct {
+	shipping       Shipping
 	orders         Orders
 	inventory      Inventory
 	cart           Cart

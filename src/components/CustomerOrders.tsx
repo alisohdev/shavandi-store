@@ -1,6 +1,9 @@
+import OrderDeliveryForm from "./OrderDeliveryForm";
+import { isOrderDelivery, type OrderDelivery } from "../lib/order-delivery";
 import { useEffect, useRef, useState } from "react";
 
 type Order = {
+  delivery: OrderDelivery | null;
   id: string;
   status: "pending_confirmation" | "cancelled" | "expired";
   subtotal_toman: number;
@@ -27,6 +30,7 @@ function parseOrder(value: unknown): Order {
   if (
     !record(value) ||
     typeof value.id !== "string" ||
+    !(value.delivery === null || isOrderDelivery(value.delivery)) ||
     !["pending_confirmation", "cancelled", "expired"].includes(
       String(value.status),
     ) ||
@@ -179,8 +183,6 @@ export default function CustomerOrders() {
   }
   useEffect(() => {
     void load();
-    const timer = setInterval(() => void load(), 60000);
-    return () => clearInterval(timer);
   }, []);
   async function cancel(id: string) {
     if (lock.current) return;
@@ -197,6 +199,37 @@ export default function CustomerOrders() {
       );
     } catch (error) {
       setMessage(errorMessage(error));
+    } finally {
+      lock.current = false;
+      setBusy(false);
+    }
+  }
+
+  async function saveDelivery(id: string, delivery: OrderDelivery) {
+    if (lock.current) return;
+    lock.current = true;
+    setBusy(true);
+    setMessage("");
+    try {
+      const value = await orderRequest(
+        `/${encodeURIComponent(id)}/delivery`,
+        delivery,
+      );
+      if (!record(value)) throw new Error("Invalid order response");
+      const updated = parseOrder(value.order);
+      setOrders(
+        (current) =>
+          current?.map((item) => (item.id === id ? updated : item)) ?? null,
+      );
+      setMessage("اطلاعات گیرنده و روش ارسال ذخیره شد. پرداخت هنوز فعال نیست.");
+    } catch (error) {
+      setMessage(
+        error instanceof OrderError && error.status === 400
+          ? "اطلاعات گیرنده معتبر نیست. نام، همراه، نشانی و کد پستی را بررسی کن."
+          : error instanceof OrderError && error.status === 409
+            ? "نسخهٔ نشانی تغییر کرده یا مهلت رزرو تمام شده است. سفارش‌ها را تازه کن؛ با تازه‌کردن، نوشته‌های ذخیره‌نشده جایگزین می‌شوند."
+            : errorMessage(error),
+      );
     } finally {
       lock.current = false;
       setBusy(false);
@@ -238,8 +271,47 @@ export default function CustomerOrders() {
                 </li>
               ))}
             </ul>
+            {order.delivery && (
+              <section aria-label="گیرندهٔ ذخیره‌شده">
+                <h3>گیرندهٔ ذخیره‌شده</h3>
+                <p>
+                  {order.delivery.recipient} · <bdi>{order.delivery.phone}</bdi>
+                </p>
+                <p>
+                  {order.delivery.province}، {order.delivery.city}،{" "}
+                  {order.delivery.address}
+                </p>
+                <p>
+                  کد پستی: <bdi>{order.delivery.postal_code}</bdi>
+                </p>
+                {order.delivery.shipping_fee_toman != null ? (
+                  <>
+                    <p>
+                      {order.delivery.shipping_name} · هزینهٔ ارسال:{" "}
+                      {money.format(order.delivery.shipping_fee_toman)} تومان
+                    </p>
+                    <p>
+                      جمع کالا و ارسال:{" "}
+                      {money.format(
+                        order.subtotal_toman +
+                          order.delivery.shipping_fee_toman,
+                      )}{" "}
+                      تومان
+                    </p>
+                  </>
+                ) : (
+                  <p>هزینهٔ ارسال تعیین نشده است.</p>
+                )}
+              </section>
+            )}
             {order.status === "pending_confirmation" && (
               <>
+                <OrderDeliveryForm
+                  key={`${order.id}:${order.delivery?.version ?? 0}`}
+                  delivery={order.delivery}
+                  busy={busy}
+                  onSave={(delivery) => saveDelivery(order.id, delivery)}
+                />
                 <p>
                   مهلت رزرو:{" "}
                   <time dateTime={order.expires_at}>

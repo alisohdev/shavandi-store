@@ -67,3 +67,43 @@ func TestOrderRoutesOwnIdentityAndRequireCSRF(t *testing.T) {
 		t.Fatalf("creation: %d", w.Code)
 	}
 }
+
+func (s *ordersStub) SaveDelivery(_ context.Context, user, _ string, _ orders.Delivery) (orders.Order, error) {
+	s.calls++
+	s.owner = user
+	return orders.Order{}, nil
+}
+
+func TestDeliveryRouteRequiresOwnerSessionAndCSRF(t *testing.T) {
+	store := &ordersStub{}
+	a := &fakeAuthentication{session: auth.Session{User: auth.User{ID: "customer-a", Role: "customer", Active: true}}}
+	h := NewHandler(nil, nil, testLogger(), WithAuthentication(a, AuthOptions{AllowedOrigins: []string{"https://store.example"}, CookieSecure: true}), WithOrders(store))
+	call := func(body, csrf string, authenticated bool) *httptest.ResponseRecorder {
+		r := httptest.NewRequest("POST", "/api/v1/orders/order-1/delivery", strings.NewReader(body))
+		r.Header.Set("Origin", "https://store.example")
+		r.Header.Set("Content-Type", "application/json")
+		r.Header.Set("X-CSRF-Token", csrf)
+		r.AddCookie(&http.Cookie{Name: "__Host-shavandi_csrf", Value: "signed-csrf"})
+		if authenticated {
+			r.AddCookie(&http.Cookie{Name: "__Host-shavandi_session", Value: "private-session-token"})
+		}
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		return w
+	}
+	if w := call(`{}`, "signed-csrf", false); w.Code != 401 {
+		t.Fatal("guest delivery accepted")
+	}
+	if w := call(`{}`, "bad", true); w.Code != 403 {
+		t.Fatal("invalid csrf accepted")
+	}
+	if w := call(`{"user_id":"other","shipping_fee_toman":0}`, "signed-csrf", true); w.Code != 400 {
+		t.Fatal("caller identity or fee accepted")
+	}
+	if store.calls != 0 {
+		t.Fatal("rejected delivery reached store")
+	}
+	if w := call(`{"version":0,"recipient":"Test recipient"}`, "signed-csrf", true); w.Code != 200 || store.owner != "customer-a" || w.Header().Get("Cache-Control") != "no-store" {
+		t.Fatal("delivery identity was not from session")
+	}
+}

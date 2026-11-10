@@ -10,6 +10,7 @@ import (
 
 	"github.com/shavandi/store/backend/internal/catalog"
 	"github.com/shavandi/store/backend/internal/orders"
+	"github.com/shavandi/store/backend/internal/shipping"
 )
 
 func TestOrderReservationsAreAtomicIdempotentAndOwned(t *testing.T) {
@@ -142,6 +143,94 @@ func TestOrderReservationsAreAtomicIdempotentAndOwned(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	assertReserved(1)
+	details := orders.Delivery{Recipient: "Test recipient", Phone: "09123456789", Province: "Tehran", City: "Tehran", Address: "Test address number 12", PostalCode: "1234567890", Version: 0}
+	saved, err := store.SaveDelivery(ctx, users[loser], pending.ID, details)
+	if err != nil || saved.Delivery == nil || saved.Delivery.Version != 1 || saved.Delivery.Phone != "+989123456789" || !saved.ExpiresAt.Equal(pending.ExpiresAt) {
+		t.Fatalf("save delivery failed: %v", err)
+	}
+	if _, err = store.SaveDelivery(ctx, users[winner], pending.ID, details); !errors.Is(err, orders.ErrNotFound) {
+		t.Fatal("other account changed delivery")
+	}
+	if _, err = store.SaveDelivery(ctx, users[loser], pending.ID, details); !errors.Is(err, orders.ErrConflict) {
+		t.Fatal("stale address overwrote saved details")
+	}
+	details.Version = 1
+	var updateWG sync.WaitGroup
+	updates := make(chan error, 2)
+	for range 2 {
+		updateWG.Add(1)
+		go func() {
+			defer updateWG.Done()
+			_, e := store.SaveDelivery(ctx, users[loser], pending.ID, details)
+			updates <- e
+		}()
+	}
+	updateWG.Wait()
+	close(updates)
+	okCount, conflictCount := 0, 0
+	for e := range updates {
+		if e == nil {
+			okCount++
+		} else if errors.Is(e, orders.ErrConflict) {
+			conflictCount++
+		} else {
+			t.Fatal(e)
+		}
+	}
+	if okCount != 1 || conflictCount != 1 {
+		t.Fatal("concurrent address updates were not versioned")
+	}
+	list, err := NewOrderStore(pool).List(ctx, users[loser])
+	if err != nil || len(list) != 1 || list[0].Delivery == nil || list[0].Delivery.Version != 2 {
+		t.Fatal("delivery did not persist")
+	}
+
+	shippingStore := NewShippingStore(pool)
+	method, e := shippingStore.Save(ctx, shipping.Method{Name: "Postal delivery", FeeToman: 75000, Active: true})
+	if e != nil {
+		t.Fatal(e)
+	}
+	details.Version = 2
+	if _, e = store.SaveDelivery(ctx, users[loser], pending.ID, details); !errors.Is(e, orders.ErrInvalid) {
+		t.Fatal("configured shipping selection not required")
+	}
+	details.ShippingMethodID = &method.ID
+	details.ShippingVersion = &method.Version
+	withShipping, e := store.SaveDelivery(ctx, users[loser], pending.ID, details)
+	if e != nil || withShipping.Delivery.ShippingFeeToman == nil || *withShipping.Delivery.ShippingFeeToman != 75000 {
+		t.Fatalf("shipping snapshot failed: %v", e)
+	}
+	oldMethod := method
+	method.FeeToman = 99000
+	method, e = shippingStore.Save(ctx, method)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if _, e = shippingStore.Save(ctx, oldMethod); !errors.Is(e, catalog.ErrVersionConflict) {
+		t.Fatal("stale shipping update accepted")
+	}
+	details.Version = 3
+	details.ShippingVersion = &oldMethod.Version
+	if _, e = store.SaveDelivery(ctx, users[loser], pending.ID, details); !errors.Is(e, orders.ErrConflict) {
+		t.Fatal("stale shipping quote accepted")
+	}
+	list, e = store.List(ctx, users[loser])
+	if e != nil || *list[0].Delivery.ShippingFeeToman != 75000 {
+		t.Fatal("shipping snapshot changed after rate edit")
+	}
+	method.Active = false
+	if _, e = shippingStore.Save(ctx, method); e != nil {
+		t.Fatal(e)
+	}
+	visible, e := shippingStore.List(ctx, false)
+	if e != nil || len(visible) != 0 {
+		t.Fatal("inactive shipping method public")
+	}
+	if _, e = shippingStore.Save(ctx, shipping.Method{Name: "Invalid", FeeToman: -1}); !errors.Is(e, catalog.ErrInvalid) {
+		t.Fatal("negative rate accepted")
+	}
 	assertReserved(1)
 	if _, err = pool.Exec(ctx, `UPDATE shavandi.orders SET created_at=now()-interval '20 minutes',expires_at=now()-interval '1 minute' WHERE id=$1::uuid`, pending.ID); err != nil {
 		t.Fatal(err)
@@ -157,4 +246,11 @@ func TestOrderReservationsAreAtomicIdempotentAndOwned(t *testing.T) {
 		t.Fatalf("expired replay: %+v %v", expired, err)
 	}
 	assertReserved(0)
+	details.Version = 3
+	if _, err = store.SaveDelivery(ctx, users[loser], pending.ID, details); !errors.Is(err, orders.ErrConflict) {
+		t.Fatal("expired order address accepted")
+	}
+	if _, err = store.SaveDelivery(ctx, users[winner], replay.ID, details); !errors.Is(err, orders.ErrConflict) {
+		t.Fatal("cancelled order address accepted")
+	}
 }

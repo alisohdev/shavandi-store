@@ -1,3 +1,4 @@
+import AdminShipping from "./AdminShipping";
 import AdminProductEditor from "./AdminProductEditor";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -122,6 +123,7 @@ export default function AdminCatalogRead({ onUnauthorized }: Props) {
 
   return (
     <div className="admin-editor-preview">
+      <AdminShipping onUnauthorized={onUnauthorized} />
       <p className="preview-notice admin-scope-note">
         تغییرات پس از ذخیره در کاتالوگ ثبت می‌شوند. پیش‌نویس‌ها تا زمان انتشار
         در دسترس مشتری نیستند.

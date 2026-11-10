@@ -97,13 +97,18 @@ func readOrder(ctx context.Context, query interface {
 	QueryRow(context.Context, string, ...any) pgx.Row
 }, userID, id string) (orders.Order, error) {
 	var order orders.Order
-	var lines []byte
+	var lines, delivery []byte
 	err := query.QueryRow(ctx, `SELECT o.id::text,o.status,o.subtotal_toman,o.created_at,o.expires_at,
  coalesce((SELECT jsonb_agg(jsonb_build_object('variant_id',l.variant_id::text,'name',l.name,'size',l.size,'color',l.color,'quantity',l.quantity,'unit_price_toman',l.unit_price_toman) ORDER BY l.variant_id) FROM shavandi.order_lines l WHERE l.order_id=o.id),'[]'::jsonb)
- FROM shavandi.orders o WHERE o.id=$1::uuid AND o.user_id=$2::uuid`, id, userID).Scan(&order.ID, &order.Status, &order.SubtotalToman, &order.CreatedAt, &order.ExpiresAt, &lines)
+ , coalesce((SELECT jsonb_build_object('recipient',d.recipient,'phone',d.phone,'province',d.province,'city',d.city,'address',d.address,'postal_code',d.postal_code,'version',d.version,'shipping_method_id',d.shipping_method_id,'shipping_version',d.shipping_version,'shipping_name',d.shipping_name,'shipping_fee_toman',d.shipping_fee_toman) FROM shavandi.order_deliveries d WHERE d.order_id=o.id),'null'::jsonb)
+ FROM shavandi.orders o WHERE o.id=$1::uuid AND o.user_id=$2::uuid`, id, userID).Scan(&order.ID, &order.Status, &order.SubtotalToman, &order.CreatedAt, &order.ExpiresAt, &lines, &delivery)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return order, orders.ErrNotFound
 	}
+	if err != nil {
+		return order, err
+	}
+	order.Delivery, err = deliveryJSON(delivery)
 	if err != nil {
 		return order, err
 	}

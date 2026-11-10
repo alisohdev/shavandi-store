@@ -93,3 +93,7 @@ The signed-in account cart is at `/cart/`; product pages save selected variant I
 ## Temporary orders
 
 Customers can reserve their current account cart for 15 minutes and view/cancel reservations at `/orders/`. Apply migration `20261110140000` before starting the updated API. Reservations do not accept payment or arrange shipping; their displayed total includes only merchandise. See [order reservations](docs/orders-handoff.md) for retry, expiry and verification behavior.
+
+## Delivery and shipping configuration
+
+The owner configures shipping methods and flat per-order fees in admin; no default shipping rate is supplied. Customers save recipient details and select a method on their active order reservation. Apply migrations `20261110150000` and `20261110160000` before starting the updated API. Zarinpal is selected for the next payment phase; payments remain disabled. See [delivery and shipping](docs/delivery-shipping-handoff.md).

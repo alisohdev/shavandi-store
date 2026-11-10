@@ -93,6 +93,22 @@ type ShavandiOrder struct {
 	ExpiresAt     pgtype.Timestamptz
 }
 
+type ShavandiOrderDelivery struct {
+	OrderID          pgtype.UUID
+	Recipient        string
+	Phone            string
+	Province         string
+	City             string
+	Address          string
+	PostalCode       string
+	Version          int64
+	UpdatedAt        pgtype.Timestamptz
+	ShippingMethodID pgtype.UUID
+	ShippingVersion  pgtype.Int8
+	ShippingName     pgtype.Text
+	ShippingFeeToman pgtype.Int8
+}
+
 type ShavandiOrderLine struct {
 	OrderID        pgtype.UUID
 	VariantID      pgtype.UUID
@@ -130,6 +146,14 @@ type ShavandiProductSlug struct {
 	ProductID pgtype.UUID
 	IsCurrent bool
 	CreatedAt pgtype.Timestamptz
+}
+
+type ShavandiShippingMethod struct {
+	ID       pgtype.UUID
+	Name     string
+	FeeToman int64
+	Active   bool
+	Version  int64
 }
 
 type ShavandiStockChange struct {

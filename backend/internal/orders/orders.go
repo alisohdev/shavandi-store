@@ -18,6 +18,7 @@ type Line struct {
 	UnitPriceToman int64   `json:"unit_price_toman"`
 }
 type Order struct {
+	Delivery      *Delivery `json:"delivery"`
 	ID            string    `json:"id"`
 	Status        string    `json:"status"`
 	SubtotalToman int64     `json:"subtotal_toman"`

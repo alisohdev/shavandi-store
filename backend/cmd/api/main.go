@@ -94,7 +94,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	handler := httpapi.NewHandler(func(ctx context.Context) error {
 		_, err := queries.Readiness(ctx)
 		return err
-	}, catalogService, logger, httpapi.WithAuthentication(authService, httpapi.AuthOptions{AllowedOrigins: authConfig.AllowedOrigins, CookieSecure: authConfig.CookieSecure}), httpapi.WithAdminCatalog(catalogService), httpapi.WithImageStore(imageStorage), httpapi.WithCart(postgres.NewCartStore(pool)), httpapi.WithInventory(postgres.NewInventoryStore(pool)), httpapi.WithOrders(orderStore))
+	}, catalogService, logger, httpapi.WithAuthentication(authService, httpapi.AuthOptions{AllowedOrigins: authConfig.AllowedOrigins, CookieSecure: authConfig.CookieSecure}), httpapi.WithAdminCatalog(catalogService), httpapi.WithImageStore(imageStorage), httpapi.WithCart(postgres.NewCartStore(pool)), httpapi.WithInventory(postgres.NewInventoryStore(pool)), httpapi.WithOrders(orderStore), httpapi.WithShipping(postgres.NewShippingStore(pool)))
 
 	listener, err := net.Listen("tcp", cfg.HTTPAddr)
 	if err != nil {

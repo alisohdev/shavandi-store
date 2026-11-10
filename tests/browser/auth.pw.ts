@@ -108,9 +108,11 @@ async function stubAuth(page: Page, initialRole: Role | null = null) {
     }
     const path = new URL(route.request().url()).pathname;
     await route.fulfill({
-      json: path.endsWith("/categories")
-        ? { categories: [] }
-        : { products: [] },
+      json: path.endsWith("/shipping-methods")
+        ? { methods: [] }
+        : path.endsWith("/categories")
+          ? { categories: [] }
+          : { products: [] },
     });
   });
   return backend;
@@ -394,6 +396,10 @@ test("admin saves a product, handles a conflict, and publishes the fresh version
   await page.route("**/api/v1/admin/**", async (route) => {
     const request = route.request();
     const path = new URL(request.url()).pathname;
+    if (path.endsWith("/shipping-methods")) {
+      await route.fulfill({ json: { methods: [] } });
+      return;
+    }
     if (path.endsWith("/categories")) {
       await route.fulfill({
         json: {
@@ -502,4 +508,51 @@ test("admin saves a product, handles a conflict, and publishes the fresh version
     path: "output/playwright/admin-editor-360.png",
     fullPage: true,
   });
+});
+
+test("administrator defines and changes shipping rates", async ({ page }) => {
+  await stubAuth(page, "admin");
+  let methods: {
+    id: string;
+    name: string;
+    fee_toman: number;
+    version: number;
+    active: boolean;
+  }[] = [];
+  await page.route("**/api/v1/admin/shipping-methods", async (route) => {
+    if (route.request().method() === "POST") {
+      expect(route.request().headers()["x-csrf-token"]).toBe("browser-csrf");
+      const body = route.request().postDataJSON();
+      methods = [{ ...body, id: "shipping-1", version: body.version + 1 }];
+      await route.fulfill({ json: { method: methods[0] } });
+      return;
+    }
+    await route.fulfill({ json: { methods } });
+  });
+  await page.goto("/admin/");
+  await page.getByLabel("نام روش جدید", { exact: true }).fill("پست");
+  await page
+    .getByLabel("هزینهٔ روش جدید به تومان", { exact: true })
+    .fill("75000");
+  await page
+    .getByRole("button", { name: "افزودن روش ارسال", exact: true })
+    .click();
+  await expect(
+    page.getByLabel("هزینهٔ ارسال shipping-1", { exact: true }),
+  ).toHaveValue("75000");
+  await page
+    .getByLabel("هزینهٔ ارسال shipping-1", { exact: true })
+    .fill("90000");
+  await page
+    .getByRole("button", { name: "ذخیره روش shipping-1", exact: true })
+    .click();
+  await expect(
+    page.getByLabel("هزینهٔ ارسال shipping-1", { exact: true }),
+  ).toHaveValue("90000");
+  expect(methods[0]?.version).toBe(2);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
 });
