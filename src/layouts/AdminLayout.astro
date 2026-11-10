@@ -18,7 +18,7 @@ const { title } = Astro.props;
     <meta name="robots" content="noindex,nofollow" />
     <meta
       name="description"
-      content="ویرایشگر محلی محصولات نمونهٔ شواندی؛ تغییرات فقط در همین پیش‌نمایش و تا تازه‌کردن صفحه نگه داشته می‌شوند."
+      content="فضای امن مدیریت کاتالوگ شواندی. اطلاعات پس از ورود مدیر از سرور دریافت می‌شود."
     />
     <link rel="icon" href="/favicon.svg" />
     <title>{title} | شواندی</title>
@@ -34,24 +34,24 @@ const { title } = Astro.props;
             SHAVANDI.
           </span>
         </a>
-        <p>پیش‌نمایش مدیریت</p>
+        <p>مدیریت کاتالوگ</p>
         <nav aria-label="منوی مدیریت">
           <a href="/admin/" aria-current="page">
-            ویرایش محصولات
+            محصولات
           </a>
-          <a href="#product-table">فهرست محصولات</a>
+          <a href="#admin-categories-heading">دسته‌بندی‌ها</a>
           <a href="/">بازگشت به فروشگاه ↗</a>
         </nav>
         <div class="admin-sidebar-note">
-          محیط نمایشی
+          فقط مشاهده
           <br />
-          تغییرات با تازه‌کردن صفحه پاک می‌شوند.
+          اطلاعات پس از ورود دریافت می‌شوند.
         </div>
       </aside>
       <main id="main-content" class="admin-main">
         <div class="admin-topbar">
           <span>فضای مدیریت شواندی</span>
-          <span class="admin-badge">ویرایش محلی</span>
+          <span class="admin-badge">فقط مشاهده</span>
         </div>
         <slot />
       </main>

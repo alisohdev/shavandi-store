@@ -393,21 +393,22 @@ func TestRealPostgresCatalogLifecycleAndPublicReads(t *testing.T) {
 		t.Fatalf("product in active category is unavailable: %v", err)
 	}
 	inactive.Active = false
-	inactive, err = service.EditCategory(ctx, inactive, inactive.Version)
-	if err != nil {
-		t.Fatalf("deactivate category ancestor: %v", err)
+	if _, err = service.EditCategory(ctx, inactive, inactive.Version); !errors.Is(err, catalog.ErrConflict) {
+		t.Fatalf("deactivate category ancestor with published product error = %v, want conflict", err)
 	}
-	if _, err := repository.GetPublishedProductBySlug(ctx, visibilityProduct.Slug); !errors.Is(err, catalog.ErrNotFound) {
-		t.Fatalf("product under inactive category ancestor remained public: %v", err)
+	if _, err := repository.GetPublishedProductBySlug(ctx, visibilityProduct.Slug); err != nil {
+		t.Fatalf("rejected category deactivation hid a published product: %v", err)
 	}
 	activeCategories, err := service.ListActiveCategories(ctx)
 	if err != nil {
 		t.Fatalf("list active categories: %v", err)
 	}
+	seen := map[catalog.ID]bool{}
 	for _, category := range activeCategories {
-		if category.ID == child.ID || category.ID == inactive.ID {
-			t.Fatalf("inactive category subtree leaked into public categories: %#v", category)
-		}
+		seen[category.ID] = true
+	}
+	if !seen[child.ID] || !seen[inactive.ID] {
+		t.Fatalf("rejected category deactivation changed public category visibility: %#v", activeCategories)
 	}
 }
 

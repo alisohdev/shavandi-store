@@ -133,6 +133,7 @@ type ProductPage struct {
 // Reader is the public, read-only boundary passed to HTTP handlers.
 type Reader interface {
 	ListActiveCategories(context.Context) ([]Category, error)
+	ListAllCategories(context.Context) ([]Category, error)
 	ListPublishedProducts(context.Context, ProductFilter) ([]PublicProduct, string, error)
 	GetPublishedProductBySlug(context.Context, string) (PublicProduct, error)
 }
@@ -144,7 +145,18 @@ type Repository interface {
 	GetCategory(context.Context, ID) (Category, error)
 	SaveCategory(context.Context, Category, int64) (Category, error)
 	GetProduct(context.Context, ID) (Product, error)
+	ListAllProducts(context.Context) ([]Product, error)
 	SaveProduct(context.Context, Product, int64) (Product, error)
+}
+
+// ListAllProducts is restricted to the authenticated administration API.
+func (s *Service) ListAllProducts(ctx context.Context) ([]Product, error) {
+	return s.repository.ListAllProducts(ctx)
+}
+
+// GetProduct returns the management representation, including unpublished state.
+func (s *Service) GetProduct(ctx context.Context, id ID) (Product, error) {
+	return s.repository.GetProduct(ctx, id)
 }
 
 type Service struct {
@@ -157,6 +169,14 @@ func NewService(repository Repository) *Service {
 
 func (s *Service) ListActiveCategories(ctx context.Context) ([]Category, error) {
 	return s.repository.ListActiveCategories(ctx)
+}
+
+func (s *Service) ListAllCategories(ctx context.Context) ([]Category, error) {
+	return s.repository.ListAllCategories(ctx)
+}
+
+func (s *Service) GetCategory(ctx context.Context, id ID) (Category, error) {
+	return s.repository.GetCategory(ctx, id)
 }
 
 func (s *Service) ListPublishedProducts(ctx context.Context, filter ProductFilter) ([]PublicProduct, string, error) {

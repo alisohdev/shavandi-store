@@ -59,6 +59,12 @@ func NewHandler(checkDatabase DatabaseCheck, catalogReader catalog.Reader, logge
 	}
 	if settings.authentication != nil {
 		registerAuthRoutes(router, settings.authentication, settings.authOptions)
+		if settings.adminCatalog != nil {
+			registerAdminCatalogRoutes(router, settings.authentication, settings.authOptions, settings.adminCatalog)
+			if settings.imageStore != nil {
+				registerImageRoutes(router, settings.authentication, settings.authOptions, settings.adminCatalog, settings.imageStore)
+			}
+		}
 	}
 
 	router.Get("/health/live", func(w http.ResponseWriter, r *http.Request) {

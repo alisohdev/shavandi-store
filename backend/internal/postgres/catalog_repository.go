@@ -27,6 +27,26 @@ func NewCatalogRepository(pool *pgxpool.Pool) *CatalogRepository {
 	return &CatalogRepository{pool: pool}
 }
 
+func (r *CatalogRepository) ListAllCategories(ctx context.Context) ([]catalog.Category, error) {
+	rows, err := r.pool.Query(ctx, `SELECT id::text, name, slug, parent_id::text, display_order, active, version, created_at, updated_at FROM shavandi.categories ORDER BY display_order, name, id`)
+	if err != nil {
+		return nil, fmt.Errorf("list all catalog categories: %w", err)
+	}
+	defer rows.Close()
+	result := make([]catalog.Category, 0)
+	for rows.Next() {
+		category, err := scanCategory(rows)
+		if err != nil {
+			return nil, mapCatalogDatabaseError(err)
+		}
+		result = append(result, category)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("read catalog categories: %w", err)
+	}
+	return result, nil
+}
+
 func (r *CatalogRepository) GetCategory(ctx context.Context, id catalog.ID) (catalog.Category, error) {
 	category, err := scanCategory(r.pool.QueryRow(ctx, `
 		SELECT id::text, name, slug, parent_id::text, display_order, active, version, created_at, updated_at
@@ -44,6 +64,15 @@ func (r *CatalogRepository) SaveCategory(ctx context.Context, category catalog.C
 	defer func() { _ = tx.Rollback(ctx) }()
 	if err := lockCatalogMutations(ctx, tx); err != nil {
 		return catalog.Category{}, err
+	}
+	if expectedVersion > 0 && !category.Active {
+		var hasPublished bool
+		if err := tx.QueryRow(ctx, `WITH RECURSIVE subtree(id) AS (SELECT $1::uuid UNION ALL SELECT c.id FROM shavandi.categories c JOIN subtree s ON c.parent_id=s.id) SELECT EXISTS(SELECT 1 FROM shavandi.products p JOIN subtree s ON p.primary_category_id=s.id WHERE p.publication_state='published')`, string(category.ID)).Scan(&hasPublished); err != nil {
+			return catalog.Category{}, fmt.Errorf("check published products before category deactivation: %w", err)
+		}
+		if hasPublished {
+			return catalog.Category{}, catalog.ErrConflict
+		}
 	}
 	if err := validateCategoryParent(ctx, tx, category); err != nil {
 		return catalog.Category{}, err
@@ -93,6 +122,36 @@ func (r *CatalogRepository) GetProduct(ctx context.Context, id catalog.ID) (cata
 		return catalog.Product{}, fmt.Errorf("finish product read: %w", err)
 	}
 	return product, nil
+}
+
+func (r *CatalogRepository) ListAllProducts(ctx context.Context) ([]catalog.Product, error) {
+	rows, err := r.pool.Query(ctx, `SELECT id::text FROM shavandi.products ORDER BY created_at DESC, id DESC`)
+	if err != nil {
+		return nil, fmt.Errorf("list catalog product IDs: %w", err)
+	}
+	ids := make([]catalog.ID, 0)
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			rows.Close()
+			return nil, err
+		}
+		ids = append(ids, catalog.ID(id))
+	}
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return nil, err
+	}
+	rows.Close()
+	products := make([]catalog.Product, 0, len(ids))
+	for _, id := range ids {
+		product, err := r.GetProduct(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, product)
+	}
+	return products, nil
 }
 
 func (r *CatalogRepository) SaveProduct(ctx context.Context, product catalog.Product, expectedVersion int64) (catalog.Product, error) {

@@ -173,7 +173,6 @@ summary:focus-visible,
   text-align: left;
 }
 .header-edition [lang="en"] {
-  font-family: Arial, Helvetica, sans-serif;
   font-size: 9px;
   letter-spacing: 0.13em;
 }
@@ -226,7 +225,6 @@ summary:focus-visible,
   background: var(--olive);
 }
 .hero-edition {
-  font-family: Arial, Helvetica, sans-serif;
   font-size: 8px;
   letter-spacing: 0.16em;
   margin-top: 56px;
@@ -398,7 +396,6 @@ summary:focus-visible,
   min-height: 18px;
 }
 .product-sizes bdi {
-  font-family: Arial, "Vazirmatn", sans-serif;
   letter-spacing: 0.03em;
 }
 .catalog-disclaimer {

@@ -17,6 +17,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/shavandi/store/backend/internal/auth"
+	"github.com/shavandi/store/backend/internal/catalog"
+	"github.com/shavandi/store/backend/internal/imagestore"
 )
 
 type Authentication interface {
@@ -36,11 +38,33 @@ type AuthOptions struct {
 type handlerOptions struct {
 	authentication Authentication
 	authOptions    AuthOptions
+	adminCatalog   AdminCatalog
+	imageStore     imagestore.Store
 }
 type HandlerOption func(*handlerOptions)
 
 func WithAuthentication(service Authentication, options AuthOptions) HandlerOption {
 	return func(settings *handlerOptions) { settings.authentication = service; settings.authOptions = options }
+}
+
+type AdminCatalog interface {
+	GetCategory(context.Context, catalog.ID) (catalog.Category, error)
+	ListAllCategories(context.Context) ([]catalog.Category, error)
+	CreateCategory(context.Context, catalog.Category) (catalog.Category, error)
+	EditCategory(context.Context, catalog.Category, int64) (catalog.Category, error)
+	ChangePublication(context.Context, catalog.ID, int64, catalog.PublicationState) (catalog.Product, error)
+	ListAllProducts(context.Context) ([]catalog.Product, error)
+	GetProduct(context.Context, catalog.ID) (catalog.Product, error)
+	CreateProductDraft(context.Context, catalog.Product) (catalog.Product, error)
+	EditProduct(context.Context, catalog.ID, int64, catalog.Product) (catalog.Product, error)
+}
+
+func WithAdminCatalog(service AdminCatalog) HandlerOption {
+	return func(settings *handlerOptions) { settings.adminCatalog = service }
+}
+
+func WithImageStore(store imagestore.Store) HandlerOption {
+	return func(settings *handlerOptions) { settings.imageStore = store }
 }
 
 type authAPI struct {
@@ -99,7 +123,8 @@ func (api *authAPI) browserSecurity(next http.Handler) http.Handler {
 		w.Header().Add("Vary", "Origin")
 		w.Header().Set("Cache-Control", "no-store")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
-		if (origin != "" && !allowed) || ((r.Method == http.MethodPost || r.Method == http.MethodOptions) && !allowed) {
+		mutation := r.Method == http.MethodPost || r.Method == http.MethodPatch || r.Method == http.MethodDelete
+		if (origin != "" && !allowed) || ((mutation || r.Method == http.MethodOptions) && !allowed) {
 			writeError(w, r, http.StatusForbidden, "origin_not_allowed", "The request origin is not allowed")
 			return
 		}
@@ -110,7 +135,7 @@ func (api *authAPI) browserSecurity(next http.Handler) http.Handler {
 		}
 		if r.Method == http.MethodOptions {
 			method := r.Header.Get("Access-Control-Request-Method")
-			if method != "GET" && method != "POST" {
+			if method != "GET" && method != "POST" && method != "PATCH" && method != "DELETE" {
 				writeError(w, r, http.StatusForbidden, "origin_not_allowed", "The requested method is not allowed")
 				return
 			}
@@ -121,7 +146,7 @@ func (api *authAPI) browserSecurity(next http.Handler) http.Handler {
 					return
 				}
 			}
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-CSRF-Token")
 			w.Header().Add("Vary", "Access-Control-Request-Method")
 			w.Header().Add("Vary", "Access-Control-Request-Headers")
@@ -130,7 +155,7 @@ func (api *authAPI) browserSecurity(next http.Handler) http.Handler {
 			writeAuthError(w, r, auth.ErrSMSUnavailable)
 			return
 		}
-		if r.Method == http.MethodPost {
+		if mutation {
 			_, csrfName := api.cookieNames()
 			cookie, err := r.Cookie(csrfName)
 			token := r.Header.Get("X-CSRF-Token")

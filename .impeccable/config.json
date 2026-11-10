@@ -11,6 +11,15 @@
         ],
         "createdAt": "2026-11-04T05:46:32.033Z",
         "reason": "Agent decision: pre-existing .preview-notice demo warning border verified in commit d514484; M2 user explicitly required preserving approved storefront and admin designs."
+      },
+      {
+        "rule": "overused-font",
+        "value": "arial",
+        "files": [
+          "src/styles/global.css"
+        ],
+        "createdAt": "2026-11-04T10:41:24.114Z",
+        "reason": "User confirmed documented Arial wordmark is intentional"
       }
     ]
   }

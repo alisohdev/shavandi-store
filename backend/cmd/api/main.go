@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 
 	"github.com/shavandi/store/backend/internal/auth"
@@ -14,6 +15,7 @@ import (
 	"github.com/shavandi/store/backend/internal/config"
 	"github.com/shavandi/store/backend/internal/dbgen"
 	"github.com/shavandi/store/backend/internal/httpapi"
+	"github.com/shavandi/store/backend/internal/imagestore"
 	"github.com/shavandi/store/backend/internal/postgres"
 )
 
@@ -46,14 +48,30 @@ func run(ctx context.Context, logger *slog.Logger) error {
 
 	queries := dbgen.New(pool)
 	catalogService := catalog.NewService(postgres.NewCatalogRepository(pool))
-	authService, err := auth.NewService(postgres.NewAuthStore(pool), auth.UnavailableSMS{}, authConfig.Secret)
+	smsSender, err := newSMSSender(os.Getenv("APP_ENV"), cfg.HTTPAddr, os.Stderr)
 	if err != nil {
 		return err
+	}
+	authService, err := auth.NewService(postgres.NewAuthStore(pool), smsSender, authConfig.Secret)
+	if err != nil {
+		return err
+	}
+	imageDir := os.Getenv("PRODUCT_IMAGE_DIR")
+	if imageDir == "" {
+		base, dirErr := os.UserConfigDir()
+		if dirErr != nil {
+			return fmt.Errorf("resolve local image storage directory: %w", dirErr)
+		}
+		imageDir = filepath.Join(base, "shavandi-store", "product-images")
+	}
+	imageStorage, err := imagestore.NewLocal(imageDir)
+	if err != nil {
+		return fmt.Errorf("initialize product image storage: %w", err)
 	}
 	handler := httpapi.NewHandler(func(ctx context.Context) error {
 		_, err := queries.Readiness(ctx)
 		return err
-	}, catalogService, logger, httpapi.WithAuthentication(authService, httpapi.AuthOptions{AllowedOrigins: authConfig.AllowedOrigins, CookieSecure: authConfig.CookieSecure}))
+	}, catalogService, logger, httpapi.WithAuthentication(authService, httpapi.AuthOptions{AllowedOrigins: authConfig.AllowedOrigins, CookieSecure: authConfig.CookieSecure}), httpapi.WithAdminCatalog(catalogService), httpapi.WithImageStore(imageStorage))
 
 	listener, err := net.Listen("tcp", cfg.HTTPAddr)
 	if err != nil {

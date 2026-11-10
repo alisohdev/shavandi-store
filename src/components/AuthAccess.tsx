@@ -13,13 +13,9 @@ import {
   createAuthClient,
   type AuthSession,
 } from "../lib/auth";
-import type { Product } from "../data/catalog";
+const AdminCatalogRead = lazy(() => import("./AdminCatalogRead"));
 
-const AdminEditor = lazy(() => import("./AdminEditor"));
-
-type Props =
-  | { readonly mode: "customer" }
-  | { readonly mode: "admin"; readonly seedProducts: readonly Product[] };
+type Props = { readonly mode: "customer" } | { readonly mode: "admin" };
 
 type SessionState =
   | { readonly kind: "checking" }
@@ -52,6 +48,14 @@ export default function AuthAccess(props: Props) {
       }
     }
   }, [client]);
+
+  const requireLogin = useCallback(() => {
+    request.current?.abort();
+    setState({
+      kind: "guest",
+      notice: "نشست مدیریت پایان یافته است؛ دوباره وارد شو.",
+    });
+  }, []);
 
   useEffect(() => {
     void refreshSession();
@@ -204,16 +208,8 @@ export default function AuthAccess(props: Props) {
       </section>
       {adminAllowed && props.mode === "admin" ? (
         <>
-          <div className="admin-heading">
-            <p className="eyebrow">کارگاه مجموعه / دادهٔ نمونه</p>
-            <h2>یک تغییر، یک نگاه تازه</h2>
-            <p>
-              نام، توضیح، قیمت و موجودی محصولات را در یک پیش‌نمایش محلی امتحان
-              کن.
-            </p>
-          </div>
-          <Suspense fallback={<p role="status">در حال آماده‌سازی ویرایشگر…</p>}>
-            <AdminEditor seedProducts={props.seedProducts} />
+          <Suspense fallback={<p role="status">در حال آماده‌سازی فهرست…</p>}>
+            <AdminCatalogRead onUnauthorized={requireLogin} />
           </Suspense>
         </>
       ) : null}

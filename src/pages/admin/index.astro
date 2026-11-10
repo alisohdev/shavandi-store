@@ -1,13 +1,12 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
 import AuthAccess from "../../components/AuthAccess";
-import { products } from "../../data/catalog";
 import "../../styles/auth.css";
 ---
 
-<AdminLayout title="پیش‌نمایش ویرایش محصولات">
+<AdminLayout title="مدیریت کاتالوگ">
   <div class="auth-admin-entry">
-    <AuthAccess mode="admin" seedProducts={products} client:load />
+    <AuthAccess mode="admin" client:load />
   </div>
   <noscript>
     <p class="preview-notice">
